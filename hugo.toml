@@ -1,12 +1,21 @@
-#baseURL = "https://smilesion.github.io/SionBlog/"
 baseURL = "https://blog.smilesion.xyz/"
 languageCode = "zh-cn"
 title = "SmileSion's Blog"
 theme = "PaperMod"
 
 [params]
-  footerText = "© 2026 SmileSion · All rights reserved"
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowCodeCopyButtons = true
+  hidePoweredBy = true 
+
+[params.assets]
+  favicon = "/favicon.ico"
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = true
+    noClasses = false
 
