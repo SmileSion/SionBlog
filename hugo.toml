@@ -1,4 +1,5 @@
-baseURL = "https://smilesion.github.io/SionBlog/"
+#baseURL = "https://smilesion.github.io/SionBlog/"
+baseURL = "https://blog.smilesion.xyz/"
 languageCode = "zh-cn"
 title = "Sion's Tech Blog"
 theme = "PaperMod"
