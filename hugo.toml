@@ -7,7 +7,7 @@ theme = "PaperMod"
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowCodeCopyButtons = true
-  hidePoweredBy = true 
+  copyright = "© 2026 SmileSion · All rights reserved"
 
 [params.assets]
   favicon = "/favicon.ico"
