@@ -1,4 +1,4 @@
-baseURL = "http://localhost/"
+baseURL = "https://smilesion.github.io/SionBlog/"
 languageCode = "zh-cn"
 title = "Sion's Tech Blog"
 theme = "PaperMod"
