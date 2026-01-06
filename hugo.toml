@@ -1,10 +1,11 @@
 #baseURL = "https://smilesion.github.io/SionBlog/"
 baseURL = "https://blog.smilesion.xyz/"
 languageCode = "zh-cn"
-title = "Sion's Tech Blog"
+title = "SmileSion's Blog"
 theme = "PaperMod"
 
 [params]
+  footerText = "© 2026 SmileSion · All rights reserved"
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowCodeCopyButtons = true
