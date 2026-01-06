@@ -1,0 +1,10 @@
+baseURL = "http://localhost/"
+languageCode = "zh-cn"
+title = "Sion's Tech Blog"
+theme = "PaperMod"
+
+[params]
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowCodeCopyButtons = true
+
