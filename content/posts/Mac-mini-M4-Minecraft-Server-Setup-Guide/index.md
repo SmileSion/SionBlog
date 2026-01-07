@@ -14,9 +14,7 @@ Mac mini M4 拥有顶级的单核性能和极小的体积，尤其是经过补�
 B站博主也有测试过，在MC服务器领域，完全不输i9-14900K，视频参考： [最适合开MC服务器的电脑？是不到4000块的M4 Mac Mini？！](https://www.bilibili.com/video/BV1NLf5YKEvp/?share_source=copy_web&vd_source=48e18bfa82c8056dcaa225baad68293c)
 
 **注意：** 服务器性能没问题不代表你家网没问题，你在拥有Mac mini之前应该考虑是否有稳定的网络和足够的上行带宽！！
-
-![image-20260107101904173](images/image-20260107101904173.png)
-
+{{< img src="image-20260107101904173.png" alt="fufu macmini m4" >}}
 
 ## 1. Mac 系统防休眠设置 
 

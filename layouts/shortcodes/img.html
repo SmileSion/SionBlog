@@ -1,0 +1,28 @@
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" | default "" -}}
+
+{{- $img := .Page.Resources.GetMatch $src -}}
+{{- if not $img -}}
+  {{ errorf "img shortcode: 找不到图片 %q" $src }}
+{{- end -}}
+
+{{- $img600w := $img.Resize "600x webp q80" -}}
+{{- $img1200w := $img.Resize "1200x webp q80" -}}
+{{- $fallback := $img.Resize "1200x q85" -}}
+
+<picture>
+  <source
+    srcset="
+      {{ $img600w.RelPermalink }} 600w,
+      {{ $img1200w.RelPermalink }} 1200w
+    "
+    sizes="(max-width: 768px) 100vw, 1200px"
+    type="image/webp"
+  >
+  <img
+    src="{{ $fallback.RelPermalink }}"
+    alt="{{ $alt }}"
+    loading="lazy"
+    decoding="async"
+  >
+</picture>
