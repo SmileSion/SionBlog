@@ -9,6 +9,31 @@ theme = "PaperMod"
   ShowCodeCopyButtons = true
   copyright = "© 2026 SmileSion · All rights reserved"
 
+[params.profileMode]
+  enabled = true
+  title = "Welcome to SmileSion's Blog!"
+  subtitle = "Smile.Rules.Consequeces."
+  imageUrl = "/images/avatar.png"
+  imageTitle = "SmileSion"
+  imageWidth = 120
+  imageHeight = 120
+
+[[params.socialIcons]]
+  name = "github"
+  url = "https://github.com/SmileSion"
+
+[[params.socialIcons]]
+  name = "email"
+  url = "mailto:1065716478@qq.com"
+
+[[params.socialIcons]]
+  name = "qq"
+  url = "https://qm.qq.com/q/9zQYugIWcM"
+
+[[params.socialIcons]]
+  name = "steam"
+  url = "https://steamcommunity.com/id/SmileSion/"
+
 [params.assets]
   favicon = "/favicon.ico"
 
@@ -19,3 +44,25 @@ theme = "PaperMod"
     lineNos = true
     noClasses = false
 
+[menu]
+
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 4
+
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 2
+
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 1
+
+  [[menu.main]]
+    name = "Photos"
+    url = "https://500px.com.cn/SmileSion"
+    weight = 3
+    params.target = "_blank"
