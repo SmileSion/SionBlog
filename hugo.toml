@@ -2,13 +2,13 @@ baseURL = "https://blog.smilesion.xyz/"
 languageCode = "zh-cn"
 title = "SmileSion's Blog"
 theme = "PaperMod"
+copyright = "© 2026 SmileSion · All rights reserved"
 
 [params]
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowCodeCopyButtons = true
   ShowToc = true          # 显示文章目录
-  copyright = "© 2026 SmileSion · All rights reserved"
 
 [params.profileMode]
   enabled = true
