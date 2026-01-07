@@ -3,6 +3,7 @@ languageCode = "zh-cn"
 title = "SmileSion's Blog"
 theme = "PaperMod"
 copyright = "© 2026 SmileSion · All rights reserved"
+enableRobotsTXT = true
 
 [params]
   defaultTheme = "auto"
