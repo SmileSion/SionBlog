@@ -11,6 +11,10 @@ enableRobotsTXT = true
   ShowCodeCopyButtons = true
   ShowToc = true          # 显示文章目录
 
+[params.cover]
+  linkFullImages = false      # 点击图片是否查看原图
+  responsiveImages = true    # 是否开启响应式图片（需 Hugo Extended 版本）
+
 [params.profileMode]
   enabled = true
   title = "Welcome to SmileSion's Blog!"
@@ -47,7 +51,6 @@ enableRobotsTXT = true
     noClasses = false
 
 [menu]
-
   [[menu.main]]
     name = "About"
     url = "/about/"
@@ -64,7 +67,15 @@ enableRobotsTXT = true
     weight = 1
 
   [[menu.main]]
+    name = "Search"
+    url = "/search/"
+    weight = 5
+
+  [[menu.main]]
     name = "Photos"
     url = "https://500px.com.cn/SmileSion"
     weight = 3
     params.target = "_blank"
+
+[outputs]
+home = ["HTML", "RSS", "JSON"]
