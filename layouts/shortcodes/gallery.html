@@ -1,0 +1,97 @@
+<link rel="stylesheet" href="https://esm.sh/photoswipe@5.4.3/dist/photoswipe.css">
+
+<div class="photo-grid" id="gallery">
+    {{ $images := .Page.Resources.Match "img/*" }}
+    {{ range $images }}
+        <div class="grid-item">
+            {{ $thumbnail := .Resize "800x q80" }}
+            <a href="{{ .RelPermalink }}" 
+               data-pswp-width="{{ .Width }}" 
+               data-pswp-height="{{ .Height }}" 
+               class="pswp-link">
+                <img src="{{ $thumbnail.RelPermalink }}" alt="Photo" loading="lazy" />
+                <div class="exif-data" style="display:none;">
+                    {{- if .Exif -}}
+                        {{- with .Exif.Tags -}}
+                            {{ if .Model }}{{ .Model }}{{ end }}
+                            {{ if .ExposureTime }} · {{ .ExposureTime }}s{{ end }}
+                            {{ if .FNumber }} · f/{{ .FNumber }}{{ end }}
+                            {{ if .ISOSpeedRatings }} · ISO {{ .ISOSpeedRatings }}{{ end }}
+                        {{- end -}}
+                    {{- else -}}
+                        Smilesion Photography
+                    {{- end -}}
+                </div>
+            </a>
+        </div>
+    {{ end }}
+</div>
+
+<style>
+/* 瀑布流基础样式 */
+.photo-grid { column-count: 3; column-gap: 12px; width: 100%; margin: 20px 0; }
+.grid-item { break-inside: avoid; margin-bottom: 12px; animation: fadeIn 0.8s ease-out; }
+.grid-item img { width: 100%; height: auto; display: block; border-radius: 2px; transition: 0.3s; cursor: zoom-in; }
+.grid-item img:hover { opacity: 0.85; }
+@media (max-width: 800px) { .photo-grid { column-count: 2; } }
+@media (max-width: 500px) { .photo-grid { column-count: 1; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 重点：Caption 样式不再使用 absolute 覆盖，而是由 JS 放置 */
+.pswp__custom-caption {
+    font-size: 13px;
+    color: #ccc;
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+}
+</style>
+
+<script type="module">
+import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
+import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
+
+const lightbox = new PhotoSwipeLightbox({
+  gallery: '#gallery',
+  children: 'a.pswp-link',
+  pswpModule: PhotoSwipe,
+  
+  // 核心：设置底部内边距，就像碰撞箱一样挤压图片空间
+  paddingFn: (viewportSize) => {
+    return {
+      top: 20,
+      bottom: 60, // 这里预留 60px 给文字
+      left: 20,
+      right: 20
+    };
+  },
+
+  imageClickAction: 'close',
+  tapAction: 'close',
+  clickToCloseNonZoomable: true,
+});
+
+lightbox.on('uiRegister', function() {
+  lightbox.pswp.ui.registerElement({
+    name: 'custom-caption',
+    order: 9,
+    isAttachedToElement: false, // 不附着在图片上
+    tagName: 'div',
+    html: '',
+    onInit: (el, pswp) => {
+      // 这里的 appendTo 会把文字塞进 UI 容器而非图片容器
+      pswp.container.appendChild(el); 
+      
+      pswp.on('change', () => {
+        const currSlideElement = pswp.currSlide.data.element;
+        if (currSlideElement) {
+          const exif = currSlideElement.querySelector('.exif-data').innerHTML;
+          el.innerHTML = exif;
+        }
+      });
+    }
+  });
+});
+
+lightbox.init();
+</script>

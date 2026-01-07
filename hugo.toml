@@ -73,9 +73,12 @@ enableRobotsTXT = true
 
   [[menu.main]]
     name = "Photos"
-    url = "https://500px.com.cn/SmileSion"
+    # url = "https://500px.com.cn/SmileSion"
+    url = "/photos/"
     weight = 3
-    params.target = "_blank"
+
+[markup.goldmark.renderer]
+    unsafe = true  # 允许在 Markdown 中使用 HTML 代码
 
 [outputs]
 home = ["HTML", "RSS", "JSON"]
