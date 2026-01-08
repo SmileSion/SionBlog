@@ -1,0 +1,31 @@
+last_update = "2026年1月8日"
+
+[[items]]
+tag = "LOCATION"
+title = "坐标"
+icon = "location"
+content = "目前居住在威海，享受蓝蓝的天空和清甜的空气。"
+
+[[items]]
+tag = "PHOTOGRAPHY"
+title = "在拍"
+icon = "camera"
+content = "拿起相机，随拍记录ing"
+
+[[items]]
+tag = "CULTURE"
+title = "影音"
+icon = "music"
+content = "正在循环播放《menhera酱-亲爱的你（Feat.约谈人参）》。"
+
+[[items]]
+tag = "BUILDING"
+title = "折腾"
+icon = "code"
+content = "一边优化个人博客，一边学习golang。"
+
+[[items]]
+tag = "GAMING"
+title = "游戏"
+icon = "game"
+content = "最近在玩 黑夜君临，感受交界地风情。"

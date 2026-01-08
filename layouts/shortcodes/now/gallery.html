@@ -1,0 +1,68 @@
+<link rel="stylesheet" href="https://esm.sh/photoswipe@5.4.3/dist/photoswipe.css">
+
+<div class="photo-grid" id="gallery">
+    {{ $images := .Page.Resources.Match "img/*" }}
+    {{ range $images }}
+        <div class="grid-item">
+            {{ $thumbnail := .Resize "800x q80" }}
+            <a href="{{ .RelPermalink }}" 
+               data-pswp-width="{{ .Width }}" 
+               data-pswp-height="{{ .Height }}" 
+               class="pswp-link">
+                <img src="{{ $thumbnail.RelPermalink }}" alt="Photo" loading="lazy" />
+                <div class="exif-data" style="display:none;">
+                    {{- if .Exif -}}
+                        {{- with .Exif.Tags -}}
+                            {{ if .Model }}{{ .Model }}{{ end }}
+                            {{ if .ExposureTime }} · {{ .ExposureTime }}s{{ end }}
+                            {{ if .FNumber }} · f/{{ .FNumber }}{{ end }}
+                            {{ if .ISOSpeedRatings }} · ISO {{ .ISOSpeedRatings }}{{ end }}
+                        {{- end -}}
+                    {{- else -}}
+                        Smilesion Photography
+                    {{- end -}}
+                </div>
+            </a>
+        </div>
+    {{ end }}
+</div>
+
+<script type="module">
+import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
+import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
+const lightbox = new PhotoSwipeLightbox({
+  gallery: '#gallery',
+  children: 'a.pswp-link',
+  pswpModule: PhotoSwipe,
+  paddingFn: (viewportSize) => { return { top: 20, bottom: 60, left: 20, right: 20 }; },
+});
+lightbox.on('uiRegister', function() {
+  lightbox.pswp.ui.registerElement({
+    name: 'custom-caption',
+    order: 9,
+    isAttachedToElement: false,
+    tagName: 'div',
+    onInit: (el, pswp) => {
+      pswp.container.appendChild(el);
+      el.className = 'pswp__custom-caption';
+      pswp.on('change', () => {
+        const currSlideElement = pswp.currSlide.data.element;
+        if (currSlideElement) {
+          el.innerHTML = currSlideElement.querySelector('.exif-data').innerHTML;
+        }
+      });
+    }
+  });
+});
+lightbox.init();
+</script>
+
+<style>
+/* 瀑布流布局 */
+.photo-grid { column-count: 3; column-gap: 12px; width: 100%; }
+.grid-item { break-inside: avoid; margin-bottom: 12px; }
+.grid-item img { width: 100%; height: auto; border-radius: 8px; transition: 0.3s; cursor: zoom-in; }
+.pswp__custom-caption { font-size: 13px; color: #ccc; width: 100%; text-align: center; padding: 15px 0; background: rgba(0,0,0,0.75); position: absolute; bottom: 0; }
+@media (max-width: 800px) { .photo-grid { column-count: 2; } }
+@media (max-width: 500px) { .photo-grid { column-count: 1; } }
+</style>
