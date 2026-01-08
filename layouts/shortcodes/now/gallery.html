@@ -1,292 +1,342 @@
 <link rel="stylesheet" href="https://esm.sh/photoswipe@5.4.3/dist/photoswipe.css">
 
 <div class="gallery-wrapper">
-    <div class="gallery-nav" id="gallery-filter">
-        <button class="filter-btn active" data-filter="all">全部</button>
-        <button class="filter-btn" data-filter="photography">摄影</button>
-        <button class="filter-btn" data-filter="game">游戏</button>
-        <button class="filter-btn" data-filter="daily">日常</button>
-    </div>
+  <div class="gallery-nav" id="gallery-filter">
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="photography">摄影</button>
+    <button class="filter-btn" data-filter="game">游戏</button>
+    <button class="filter-btn" data-filter="daily">日常</button>
+  </div>
 
-    <div class="photo-grid-flex" id="gallery"></div>
+  <div class="photo-grid-flex" id="gallery"></div>
 
-    <div id="raw-items" style="display:none;">
-        {{ $subdirs := slice "photography" "game" "daily" }}
-        {{ range $subdirs }}
-            {{ $category := . }}
-            {{ $path := printf "img/%s/*" $category }}
-            {{ $images := $.Page.Resources.Match $path }}
-            {{ range $images }}
-                {{ $thumbnail := .Resize "800x q80" }}
-                <div class="grid-item" data-category="{{ $category }}">
-                    <a href="{{ .RelPermalink }}" 
-                       data-pswp-width="{{ .Width }}" 
-                       data-pswp-height="{{ .Height }}" 
-                       class="pswp-link">
-                        <img data-src="{{ $thumbnail.RelPermalink }}" 
-                             alt="{{ $category }}" 
-                             style="aspect-ratio: {{ .Width }} / {{ .Height }};"
-                             class="lazy-img" />
-                        
-                        <div class="exif-data" style="display:none;">
-                            {{- if .Exif -}}{{- with .Exif.Tags -}}
-                                <span class="exif-model">{{ .Model }}</span>
-                                <span class="exif-details">{{ if .ExposureTime }}{{ .ExposureTime }}s{{ end }}{{ if .FNumber }} · f/{{ .FNumber }}{{ end }}{{ if .ISOSpeedRatings }} · ISO {{ .ISOSpeedRatings }}{{ end }}</span>
-                            {{- end -}}{{- else -}}
-                                <span class="exif-model">Smilesion Photography</span>
-                            {{- end -}}
-                        </div>
-                    </a>
-                </div>
-            {{ end }}
-        {{ end }}
-    </div>
+  <div id="raw-items" style="display:none;">
+    {{ $subdirs := slice "photography" "game" "daily" }}
+    {{ range $subdirs }}
+    {{ $category := . }}
+    {{ $path := printf "img/%s/*" $category }}
+    {{ $images := $.Page.Resources.Match $path }}
+    {{ range $images }}
+    {{ $thumbnail := .Resize "800x q80" }}
+    <div class="grid-item" data-category="{{ $category }}">
+      <a href="{{ .RelPermalink }}" data-pswp-width="{{ .Width }}" data-pswp-height="{{ .Height }}" class="pswp-link">
+        <img data-src="{{ $thumbnail.RelPermalink }}" alt="{{ $category }}"
+          style="--w: {{ .Width }}; --h: {{ .Height }}; aspect-ratio: var(--w) / var(--h);" class="lazy-img" />
 
-    <div class="gallery-footer">
-        <button id="load-more-btn" class="more-btn">查看更多作品</button>
-        <div id="loader" class="spinner-loader" style="display: none;">
-            <div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div>
+        <div class="exif-data" style="display:none;">
+          {{- if .Exif -}}{{- with .Exif.Tags -}}
+          <span class="exif-model">{{ .Model }}</span>
+          <span class="exif-details">{{ if .ExposureTime }}{{ .ExposureTime }}s{{ end }}{{ if .FNumber }} · f/{{
+            .FNumber }}{{ end }}{{ if .ISOSpeedRatings }} · ISO {{ .ISOSpeedRatings }}{{ end }}</span>
+          {{- end -}}{{- else -}}
+          <span class="exif-model">Smilesion Photography</span>
+          {{- end -}}
         </div>
+      </a>
     </div>
+    {{ end }}
+    {{ end }}
+  </div>
+
+  <div class="gallery-footer">
+    <button id="load-more-btn" class="more-btn">查看更多作品</button>
+    <div id="loader" class="spinner-loader" style="display: none;">
+      <div class="bounce1"></div>
+      <div class="bounce2"></div>
+      <div class="bounce3"></div>
+    </div>
+  </div>
 </div>
 
 <style>
-/* --- 布局优化 --- */
-.gallery-wrapper { margin: 1rem auto; max-width: 1400px; padding: 0 5px; }
+  /* --- 布局优化 --- */
+  .gallery-wrapper {
+    margin: 1rem auto;
+    max-width: 1400px;
+    padding: 0 5px;
+  }
 
-.gallery-nav { 
-    display: flex; gap: 8px; margin-bottom: 20px; 
-    overflow-x: auto; padding-bottom: 5px; 
+  .gallery-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 5px;
     justify-content: center;
     scrollbar-width: none;
-}
-.gallery-nav::-webkit-scrollbar { display: none; }
+  }
 
-.filter-btn { 
-    background: #f4f4f4; border: none; color: #666; font-size: 0.85rem; 
-    cursor: pointer; padding: 6px 18px; border-radius: 50px; 
-    transition: 0.2s; white-space: nowrap; 
-}
-.filter-btn.active { background: #333; color: #fff; }
+  .gallery-nav::-webkit-scrollbar {
+    display: none;
+  }
 
-/* --- 核心：消除上下间隙 --- */
-.photo-grid-flex { 
-    display: flex; 
-    gap: 4px; /* 左右间距 */
-    width: 100%; 
-    align-items: flex-start; 
-}
+  .filter-btn {
+    background: #f4f4f4;
+    border: none;
+    color: #666;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 6px 18px;
+    border-radius: 50px;
+    transition: 0.2s;
+    white-space: nowrap;
+  }
 
-.grid-column { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px; /* 关键：这里控制图片上下的物理间距 */
-    min-width: 0; 
-}
+  .filter-btn.active {
+    background: #333;
+    color: #fff;
+  }
 
-.grid-item { 
-    width: 100%; 
-    position: relative; 
+  /* --- 核心：消除上下间隙 --- */
+  .photo-grid-flex {
+    display: flex;
+    gap: 4px;
+    /* 左右间距 */
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .grid-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* 关键：这里控制图片上下的物理间距 */
+    min-width: 0;
+  }
+
+  .grid-item {
+    width: 100%;
+    position: relative;
     overflow: hidden;
-    background: transparent; 
+    background: transparent;
     /* 彻底消除任何潜在间隙 */
-    line-height: 0; 
-    font-size: 0; 
+    line-height: 0;
+    font-size: 0;
     margin: 0;
     padding: 0;
-}
+  }
 
-.pswp-link {
+  .pswp-link {
     display: block;
     width: 100%;
-    line-height: 0; /* 再次确保容器内无空隙 */
-}
+    line-height: 0;
+    /* 再次确保容器内无空隙 */
+  }
 
-.grid-item img { 
-    width: 100%; 
-    height: auto; 
-    display: block; /* 核心：防止行内元素产生的下方空白 */
+  .grid-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* 核心：防止行内元素产生的下方空白 */
     object-fit: cover;
     transition: opacity 0.4s ease;
     border: none;
     margin: 0;
     padding: 0;
-}
+  }
 
-.grid-item:hover img { opacity: 0.9; }
+  .grid-item:hover img {
+    opacity: 0.9;
+  }
 
-/* 懒加载占位颜色：如果是纯紧凑衔接，建议不设背景色或设为背景色 */
-.lazy-img { opacity: 0; }
-.lazy-img.loaded { opacity: 1; }
+  /* 懒加载占位颜色：如果是纯紧凑衔接，建议不设背景色或设为背景色 */
+  .lazy-img {
+    opacity: 0;
+  }
 
-.gallery-footer { margin-top: 30px; display: flex; justify-content: center; }
-.more-btn { 
-    background: #fff; border: 1px solid #eee; color: #444; 
-    padding: 10px 30px; border-radius: 50px; cursor: pointer; font-size: 0.85rem;
-}
-.more-btn:hover { background: #333; color: #fff; }
+  .lazy-img.loaded {
+    opacity: 1;
+  }
 
-/* Caption 样式 */
-.pswp__custom-caption {
+  .gallery-footer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .more-btn {
+    background: #fff;
+    border: 1px solid #eee;
+    color: #444;
+    padding: 10px 30px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .more-btn:hover {
+    background: #333;
+    color: #fff;
+  }
+
+  /* Caption 样式 */
+  .pswp__custom-caption {
     background: rgba(0, 0, 0, 0.7);
-    color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px;
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    opacity: 0; transition: opacity 0.3s;
-}
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
 </style>
 
 <script type="module">
-import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
-import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
+  import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
+  import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
 
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const rawItems = Array.from(document.querySelectorAll('#raw-items .grid-item'));
     const gridContainer = document.getElementById('gallery');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const loadMoreBtn = document.getElementById('load-more-btn');
     const loader = document.getElementById('loader');
-    
+
     let currentFilter = 'all';
     let visibleCount = 0;
-    let perPage = 12; 
+    let perPage = 12;
     let isAutoLoad = false;
     let isLoading = false;
     let columnsElements = [];
 
     const getColumnCount = () => {
-        const w = window.innerWidth;
-        if (w < 600) return 2; 
-        if (w < 1000) return 3; 
-        return 4; 
+      const w = window.innerWidth;
+      if (w < 600) return 2;
+      if (w < 1000) return 3;
+      return 4;
     };
 
     const setupColumns = () => {
-        gridContainer.innerHTML = '';
-        columnsElements = [];
-        const count = getColumnCount();
-        for (let i = 0; i < count; i++) {
-            const col = document.createElement('div');
-            col.className = 'grid-column';
-            gridContainer.appendChild(col);
-            columnsElements.push(col);
-        }
+      gridContainer.innerHTML = '';
+      columnsElements = [];
+      const count = getColumnCount();
+      for (let i = 0; i < count; i++) {
+        const col = document.createElement('div');
+        col.className = 'grid-column';
+        gridContainer.appendChild(col);
+        columnsElements.push(col);
+      }
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.onload = () => {
-                        img.classList.add('loaded');
-                        // 强制触发一次重绘，确保上下图片衔接紧密
-                        img.parentElement.style.height = 'auto';
-                    };
-                }
-                observer.unobserve(img);
-            }
-        });
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.onload = () => {
+              img.classList.add('loaded');
+              // 强制触发一次重绘，确保上下图片衔接紧密
+              img.parentElement.style.height = 'auto';
+            };
+          }
+          observer.unobserve(img);
+        }
+      });
     }, { rootMargin: '400px' });
 
     const renderNextItems = () => {
-        if (isLoading) return;
-        isLoading = true;
+      if (isLoading) return;
+      isLoading = true;
 
-        const filtered = rawItems.filter(item => 
-            currentFilter === 'all' || item.dataset.category === currentFilter
-        );
+      const filtered = rawItems.filter(item =>
+        currentFilter === 'all' || item.dataset.category === currentFilter
+      );
 
-        const start = visibleCount;
-        const end = Math.min(start + perPage, filtered.length);
-        const colCount = columnsElements.length;
+      const start = visibleCount;
+      const end = Math.min(start + perPage, filtered.length);
+      const colCount = columnsElements.length;
 
-        if (colCount === 0) setupColumns();
+      if (colCount === 0) setupColumns();
 
-        for (let i = start; i < end; i++) {
-            const item = filtered[i].cloneNode(true);
-            const targetColIndex = i % colCount; 
-            columnsElements[targetColIndex].appendChild(item);
-            const img = item.querySelector('img');
-            observer.observe(img);
-        }
+      for (let i = start; i < end; i++) {
+        const item = filtered[i].cloneNode(true);
+        const targetColIndex = i % colCount;
+        columnsElements[targetColIndex].appendChild(item);
+        const img = item.querySelector('img');
+        observer.observe(img);
+      }
 
-        visibleCount = end;
-        isLoading = false; 
-        loader.style.display = 'none';
+      visibleCount = end;
+      isLoading = false;
+      loader.style.display = 'none';
 
-        if (visibleCount >= filtered.length) {
-            loadMoreBtn.style.display = 'none';
-        } else {
-            loadMoreBtn.style.display = isAutoLoad ? 'none' : 'block';
-        }
+      if (visibleCount >= filtered.length) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = isAutoLoad ? 'none' : 'block';
+      }
     };
 
     // 其他逻辑保持不变...
     window.addEventListener('resize', () => {
-        clearTimeout(window.rtimer);
-        window.rtimer = setTimeout(() => {
-            if (columnsElements.length !== getColumnCount()) {
-                const currentCount = visibleCount;
-                setupColumns();
-                visibleCount = 0;
-                perPage = currentCount;
-                renderNextItems();
-                perPage = 12;
-            }
-        }, 200);
+      clearTimeout(window.rtimer);
+      window.rtimer = setTimeout(() => {
+        if (columnsElements.length !== getColumnCount()) {
+          const currentCount = visibleCount;
+          setupColumns();
+          visibleCount = 0;
+          perPage = currentCount;
+          renderNextItems();
+          perPage = 12;
+        }
+      }, 200);
     });
 
     filterBtns.forEach(btn => btn.addEventListener('click', () => {
-        if(btn.classList.contains('active')) return;
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        visibleCount = 0;
-        isAutoLoad = false;
-        setupColumns();
-        renderNextItems();
+      if (btn.classList.contains('active')) return;
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      visibleCount = 0;
+      isAutoLoad = false;
+      setupColumns();
+      renderNextItems();
     }));
 
     loadMoreBtn.addEventListener('click', () => {
-        isAutoLoad = true;
-        loadMoreBtn.style.display = 'none';
-        renderNextItems();
+      isAutoLoad = true;
+      loadMoreBtn.style.display = 'none';
+      renderNextItems();
     });
 
     const lightbox = new PhotoSwipeLightbox({
-        gallery: '#gallery',
-        children: 'a.pswp-link',
-        pswpModule: PhotoSwipe
+      gallery: '#gallery',
+      children: 'a.pswp-link',
+      pswpModule: PhotoSwipe
     });
-    
+
     lightbox.addFilter('domItemData', (itemData, element, link) => {
-        if (link) {
-            const exifDiv = link.querySelector('.exif-data');
-            itemData.exifHtml = exifDiv ? exifDiv.innerHTML : '';
-        }
-        return itemData;
+      if (link) {
+        const exifDiv = link.querySelector('.exif-data');
+        itemData.exifHtml = exifDiv ? exifDiv.innerHTML : '';
+      }
+      return itemData;
     });
 
     lightbox.on('uiRegister', () => {
-        lightbox.pswp.ui.registerElement({
-            name: 'custom-caption',
-            order: 9,
-            appendTo: 'wrapper',
-            tagName: 'div',
-            className: 'pswp__custom-caption',
-            onInit: (el, pswp) => {
-                pswp.on('change', () => {
-                    el.innerHTML = pswp.currSlide.data.exifHtml || '';
-                    el.style.opacity = pswp.currSlide.data.exifHtml ? '1' : '0';
-                });
-            }
-        });
+      lightbox.pswp.ui.registerElement({
+        name: 'custom-caption',
+        order: 9,
+        appendTo: 'wrapper',
+        tagName: 'div',
+        className: 'pswp__custom-caption',
+        onInit: (el, pswp) => {
+          pswp.on('change', () => {
+            el.innerHTML = pswp.currSlide.data.exifHtml || '';
+            el.style.opacity = pswp.currSlide.data.exifHtml ? '1' : '0';
+          });
+        }
+      });
     });
     lightbox.init();
 
     setupColumns();
     renderNextItems();
-});
+  });
 </script>
