@@ -15,4 +15,4 @@ showtoc = false
 
 ### 作品预览
 
-{{< gallery >}}
+{{< photos/gallery >}}
