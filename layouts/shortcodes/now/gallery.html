@@ -8,7 +8,9 @@
         <button class="filter-btn" data-filter="daily">日常</button>
     </div>
 
-    <div class="photo-grid" id="gallery">
+    <div class="photo-grid-flex" id="gallery"></div>
+
+    <div id="raw-items" style="display:none;">
         {{ $subdirs := slice "photography" "game" "daily" }}
         {{ range $subdirs }}
             {{ $category := . }}
@@ -21,7 +23,7 @@
                        data-pswp-width="{{ .Width }}" 
                        data-pswp-height="{{ .Height }}" 
                        class="pswp-link">
-                        <img data-src="{{ $thumbnail.RelPermalink }}" alt="Photo" class="lazy-img" />
+                        <img data-src="{{ $thumbnail.RelPermalink }}" alt="{{ $category }}" class="lazy-img" />
                         
                         <div class="exif-data" style="display:none;">
                             {{- if .Exif -}}{{- with .Exif.Tags -}}
@@ -39,68 +41,91 @@
 
     <div class="gallery-footer">
         <button id="load-more-btn" class="more-btn">展开更多作品</button>
+        <div id="loader" class="spinner-loader" style="display: none;">
+            <div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div>
+        </div>
     </div>
 </div>
 
 <style>
-/* --- 基础布局 --- */
+/* --- 全局布局 --- */
 .gallery-wrapper { margin-top: 2rem; }
-.gallery-nav { display: flex; gap: 12px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 10px; }
-.filter-btn { background: var(--code-bg); border: none; color: var(--secondary); font-size: 0.85rem; cursor: pointer; padding: 6px 16px; border-radius: 20px; transition: 0.3s; white-space: nowrap; }
-.filter-btn.active { background: var(--primary); color: var(--theme); }
 
-.photo-grid { column-count: 3; column-gap: 15px; width: 100%; }
-.grid-item { break-inside: avoid; margin-bottom: 15px; display: none; animation: pswpFadeIn 0.5s ease forwards; }
-@keyframes pswpFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* 导航栏优化 */
+.gallery-nav { 
+    display: flex; gap: 10px; margin-bottom: 25px; 
+    overflow-x: auto; padding-bottom: 5px; 
+    justify-content: flex-start; /* 移动端靠左，PC居中 */
+    -webkit-overflow-scrolling: touch; 
+    scrollbar-width: none;
+}
+.gallery-nav::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) { .gallery-nav { justify-content: center; } }
 
-.grid-item img { width: 100%; height: auto; border-radius: 12px; cursor: zoom-in; display: block; background: var(--code-bg); transition: 0.3s; min-height: 100px; object-fit: cover; }
-.more-btn { background: var(--entry); border: 1px solid var(--border); color: var(--primary); padding: 10px 32px; border-radius: 25px; cursor: pointer; margin-top: 20px; }
+.filter-btn { 
+    background: var(--code-bg); border: none; color: var(--secondary); font-size: 0.9rem; 
+    cursor: pointer; padding: 8px 20px; border-radius: 50px; 
+    transition: all 0.3s ease; white-space: nowrap; 
+}
+.filter-btn.active { background: var(--primary); color: var(--theme); transform: scale(1.05); }
 
-/* 懒加载占位 */
-.lazy-img { opacity: 0; transition: opacity 0.5s; }
-.lazy-img[src] { opacity: 1; }
+/* --- 核心：Flex 分列布局 (解决跳动问题) --- */
+.photo-grid-flex { display: flex; gap: 15px; width: 100%; align-items: flex-start; }
+.grid-column { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 0; }
 
-/* --- PhotoSwipe EXIF 浮层样式 (修正版) --- */
+/* 图片卡片 */
+.grid-item { 
+    width: 100%; position: relative; border-radius: 12px; overflow: hidden;
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    background: var(--code-bg);
+}
+.grid-item img { 
+    width: 100%; height: auto; display: block; 
+    transition: transform 0.5s ease; min-height: 100px; object-fit: cover;
+}
+.grid-item:hover img { transform: scale(1.03); filter: brightness(0.95); }
+
+/* 入场动画 */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 懒加载过渡 */
+.lazy-img { opacity: 0; transition: opacity 0.6s; }
+.lazy-img.loaded { opacity: 1; }
+
+/* 底部按钮与加载动画 */
+.gallery-footer { margin-top: 40px; min-height: 60px; display: flex; flex-direction: column; align-items: center; }
+.more-btn { 
+    background: var(--entry); border: 1px solid var(--border); color: var(--primary); 
+    padding: 12px 40px; border-radius: 50px; cursor: pointer; transition: 0.3s;
+}
+.more-btn:hover { background: var(--primary); color: var(--theme); }
+
+/* 三点跳动 Loader */
+.spinner-loader { width: 70px; text-align: center; margin-top: 10px; }
+.spinner-loader > div {
+    width: 10px; height: 10px; background-color: var(--secondary);
+    border-radius: 100%; display: inline-block;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+.spinner-loader .bounce1 { animation-delay: -0.32s; }
+.spinner-loader .bounce2 { animation-delay: -0.16s; }
+@keyframes sk-bouncedelay { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+/* PhotoSwipe EXIF 胶囊 */
 .pswp__custom-caption {
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: #f5f5f5;
-    padding: 8px 18px;
-    border-radius: 100px;
-    font-size: 13px;
-    
-    /* 核心定位：固定在屏幕底部 */
-    position: absolute;
-    bottom: 30px; 
-    left: 50%;
-    transform: translateX(-50%);
-    
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    z-index: 2000;
-    pointer-events: none; /* 防止遮挡点击 */
-    
-    /* 动画 */
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    color: #f5f5f5; padding: 8px 18px; border-radius: 100px; font-size: 13px;
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.12);
+    z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
 }
-
 .exif-model { font-weight: 700; margin-right: 8px; color: #fff; }
-.exif-details { opacity: 0.85; font-family: ui-monospace, SFMono-Regular, monospace; letter-spacing: 0.5px; }
+.exif-details { opacity: 0.85; font-family: monospace; letter-spacing: 0.5px; }
 
-/* 移动端适配：列数调整 */
-@media (max-width: 768px) {
-    .photo-grid { column-count: 2; }
-}
-@media (max-width: 480px) {
-    .photo-grid { column-count: 1; }
-    .pswp__custom-caption { bottom: 20px; font-size: 12px; padding: 6px 14px; }
-}
+@media (max-width: 480px) { .pswp__custom-caption { bottom: 20px; font-size: 12px; } }
 </style>
 
 <script type="module">
@@ -108,123 +133,176 @@ import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
 import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 懒加载与分类逻辑
-    const gridItems = document.querySelectorAll('.grid-item');
+    // 核心元素
+    const rawItems = Array.from(document.querySelectorAll('#raw-items .grid-item'));
+    const gridContainer = document.getElementById('gallery');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const loadMoreBtn = document.getElementById('load-more-btn');
-    let currentFilter = 'all', perPage = 6, visibleCount = perPage;
+    const loader = document.getElementById('loader');
+    
+    // 状态管理
+    let currentFilter = 'all';
+    let visibleCount = 0;
+    let perPage = 9; 
+    let isAutoLoad = false;
+    let isLoading = false;
+    let columnsElements = [];
 
-    const lazyLoadVisible = () => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    if (img.dataset.src) { 
-                        img.src = img.dataset.src; 
-                        img.removeAttribute('data-src'); 
-                    }
-                    observer.unobserve(img);
-                }
-            });
-        }, { rootMargin: '200px' });
-        document.querySelectorAll('.grid-item[style*="display: block"] img').forEach(img => observer.observe(img));
+    // 1. 响应式列数
+    const getColumnCount = () => {
+        const w = window.innerWidth;
+        if (w < 600) return 1;
+        if (w < 900) return 2;
+        return 3;
     };
 
-    const applyFilter = () => {
-        let count = 0;
-        let total = 0;
-        
-        gridItems.forEach(item => {
-            const isMatch = currentFilter === 'all' || item.dataset.category === currentFilter;
-            
-            if (isMatch) {
-                total++;
-                if (count < visibleCount) {
-                    item.style.display = 'block';
-                    count++;
-                } else {
-                    item.style.display = 'none';
+    // 2. 初始化列结构
+    const setupColumns = () => {
+        gridContainer.innerHTML = '';
+        columnsElements = [];
+        const count = getColumnCount();
+        for (let i = 0; i < count; i++) {
+            const col = document.createElement('div');
+            col.className = 'grid-column';
+            gridContainer.appendChild(col);
+            columnsElements.push(col);
+        }
+    };
+
+    // 懒加载
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.onload = () => img.classList.add('loaded');
+                    img.removeAttribute('data-src');
                 }
-            } else {
-                item.style.display = 'none';
+                observer.unobserve(img);
             }
         });
-        
-        loadMoreBtn.style.display = visibleCount >= total ? 'none' : 'block';
-        lazyLoadVisible();
+    }, { rootMargin: '300px' });
+
+    // 3. 核心渲染 (轮询算法解决跳动)
+    const renderNextItems = () => {
+        if (isLoading) return;
+        isLoading = true;
+
+        const filtered = rawItems.filter(item => 
+            currentFilter === 'all' || item.dataset.category === currentFilter
+        );
+
+        const start = visibleCount;
+        const end = Math.min(start + perPage, filtered.length);
+        const colCount = columnsElements.length;
+
+        if (colCount === 0) setupColumns();
+
+        for (let i = start; i < end; i++) {
+            const item = filtered[i].cloneNode(true);
+            // 关键：轮询分发，保证初始加载时列平衡
+            const targetColIndex = i % colCount;
+            
+            item.style.animationDelay = `${(i - start) * 0.05}s`;
+            columnsElements[targetColIndex].appendChild(item);
+            
+            const img = item.querySelector('img');
+            observer.observe(img);
+        }
+
+        visibleCount = end;
+        setTimeout(() => { isLoading = false; loader.style.display = 'none'; }, 100);
+
+        if (visibleCount >= filtered.length) {
+            loadMoreBtn.style.display = 'none';
+        } else if (!isAutoLoad) {
+            loadMoreBtn.style.display = 'block';
+        }
     };
 
+    // 窗口调整
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (columnsElements.length !== getColumnCount()) {
+                setupColumns();
+                const savedVisible = visibleCount;
+                visibleCount = 0;
+                perPage = savedVisible; // 一次性恢复当前数量
+                renderNextItems();
+                perPage = 9; // 恢复默认步长
+            }
+        }, 200);
+    });
+
+    // 滚动加载
+    window.addEventListener('scroll', () => {
+        if (!isAutoLoad || isLoading) return;
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loader.style.display = 'block';
+            renderNextItems();
+        }
+    });
+
+    // 筛选点击
     filterBtns.forEach(btn => btn.addEventListener('click', () => {
+        if(btn.classList.contains('active')) return;
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentFilter = btn.dataset.filter; 
-        visibleCount = perPage; // 切换分类重置数量
-        applyFilter();
+        currentFilter = btn.dataset.filter;
+        
+        isAutoLoad = false;
+        visibleCount = 0;
+        loader.style.display = 'none';
+        setupColumns();
+        renderNextItems();
     }));
 
-    if(loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => { 
-            visibleCount += perPage; 
-            applyFilter(); 
-        });
-    }
-    
-    // 初始化筛选
-    applyFilter();
+    loadMoreBtn.addEventListener('click', () => {
+        isAutoLoad = true;
+        loadMoreBtn.style.display = 'none';
+        loader.style.display = 'block';
+        renderNextItems();
+    });
 
-
-    // 2. PhotoSwipe 初始化与 EXIF 注入
+    // PhotoSwipe
     const lightbox = new PhotoSwipeLightbox({
         gallery: '#gallery',
         children: 'a.pswp-link',
         pswpModule: PhotoSwipe,
-        // 给底部留空，防止 UI 遮挡图片主体
-        padding: { top: 20, bottom: 60, left: 20, right: 20 } 
+        padding: { top: 20, bottom: 60, left: 20, right: 20 }
     });
-
-    // 【关键步骤1】解析 HTML 数据：初始化时就把 EXIF 抓取并存入 itemData
+    
     lightbox.addFilter('domItemData', (itemData, element, link) => {
         if (link) {
             const exifDiv = link.querySelector('.exif-data');
-            // 将 HTML 字符串存入数据对象
             itemData.exifHtml = exifDiv ? exifDiv.innerHTML : '';
         }
         return itemData;
     });
-
-    // 【关键步骤2】注册全局 UI 元素
+    
     lightbox.on('uiRegister', () => {
         lightbox.pswp.ui.registerElement({
             name: 'custom-caption',
             order: 9,
-            isAttachedToElement: false, // 全局模式，不随图片缩放
-            appendTo: 'wrapper',        // 挂载到根容器
+            appendTo: 'wrapper',
             tagName: 'div',
             className: 'pswp__custom-caption',
             onInit: (el, pswp) => {
-                el.style.display = 'none'; // 默认隐藏
-
-                // 监听切换事件
                 pswp.on('change', () => {
                     const currSlide = pswp.currSlide;
-                    if (currSlide && currSlide.data && currSlide.data.exifHtml) {
-                        // 更新内容
-                        el.innerHTML = currSlide.data.exifHtml;
-                        el.style.display = 'block';
-                        
-                        // 简单的淡入效果
-                        el.style.opacity = '0';
-                        setTimeout(() => { el.style.opacity = '1'; }, 50);
-                    } else {
-                        // 如果没有 EXIF 数据，可以隐藏或者显示默认文字
-                        el.style.opacity = '0';
-                        setTimeout(() => { el.style.display = 'none'; }, 200);
-                    }
+                    el.innerHTML = currSlide?.data.exifHtml || '';
+                    el.style.opacity = currSlide?.data.exifHtml ? '1' : '0';
                 });
             }
         });
     });
-
     lightbox.init();
+
+    // 启动
+    setupColumns();
+    renderNextItems();
 });
 </script>
