@@ -51,65 +51,88 @@
 
 <style>
 /* --- 全局布局 --- */
-.gallery-wrapper { margin: 2rem auto; max-width: 1400px; padding: 0 15px; }
+.gallery-wrapper { margin: 2rem auto; max-width: 1400px; padding: 0 10px; }
 
-/* 导航栏优化 */
+/* 导航栏 */
 .gallery-nav { 
-    display: flex; gap: 8px; margin-bottom: 30px; 
+    display: flex; gap: 8px; margin-bottom: 25px; 
     overflow-x: auto; padding-bottom: 5px; 
-    justify-content: flex-start; /* 移动端靠左 */
+    justify-content: flex-start;
     -webkit-overflow-scrolling: touch; 
-    scrollbar-width: none; /* Firefox 隐藏滚动条 */
+    scrollbar-width: none;
 }
-.gallery-nav::-webkit-scrollbar { display: none; } /* Chrome 隐藏滚动条 */
+.gallery-nav::-webkit-scrollbar { display: none; }
 @media (min-width: 768px) { .gallery-nav { justify-content: center; } }
 
 .filter-btn { 
     background: #f4f4f4; border: none; color: #666; font-size: 0.9rem; 
-    cursor: pointer; padding: 10px 24px; border-radius: 50px; 
+    cursor: pointer; padding: 8px 20px; border-radius: 50px; 
     transition: all 0.3s ease; white-space: nowrap; 
 }
-.filter-btn.active { background: #222; color: #fff; transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.filter-btn.active { background: #222; color: #fff; }
 
-/* --- 核心：Flex 分列布局 (解决跳动问题) --- */
-.photo-grid-flex { display: flex; gap: 15px; width: 100%; align-items: flex-start; }
-.grid-column { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 0; /* 防止Flex子项溢出 */ }
+/* --- 核心修复：调整间距和白边 --- */
+.photo-grid-flex { 
+    display: flex; 
+    gap: 8px; /* 左右间距缩小 */
+    width: 100%; 
+    align-items: flex-start; 
+}
 
-/* 图片卡片样式 */
+.grid-column { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; /* 上下图片间距缩小 */
+    min-width: 0; 
+}
+
 .grid-item { 
-    width: 100%; position: relative; border-radius: 6px; overflow: hidden;
-    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    background: #f0f0f0; /* 占位背景色 */
+    width: 100%; 
+    position: relative; 
+    border-radius: 4px; 
+    overflow: hidden;
+    /* 关键：移除这里的 background: #f0f0f0; 以消除白边感 */
+    background: transparent; 
+    line-height: 0; /* 彻底消除图片下方的幽灵间隙 */
+    animation: fadeInUp 0.6s ease-out forwards;
 }
+
 .grid-item img { 
-    width: 100%; height: auto; display: block; 
-    transition: transform 0.5s ease; 
+    width: 100%; 
+    height: auto; 
+    display: block; /* 消除行内元素间隙 */
+    transition: transform 0.5s ease;
+    border: none;
+    margin: 0;
+    padding: 0;
 }
-.grid-item:hover img { transform: scale(1.02); filter: brightness(0.95); }
+
+.grid-item:hover img { transform: scale(1.03); }
 
 /* 入场动画 */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(40px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 懒加载过渡 */
-.lazy-img { opacity: 0; transition: opacity 0.6s; }
+/* 懒加载 */
+.lazy-img { opacity: 0; transition: opacity 0.4s; }
 .lazy-img.loaded { opacity: 1; }
 
-/* 底部按钮与加载动画 */
-.gallery-footer { margin-top: 40px; min-height: 60px; display: flex; justify-content: center; }
+/* 底部 */
+.gallery-footer { margin-top: 30px; min-height: 60px; display: flex; justify-content: center; }
 .more-btn { 
-    background: #fff; border: 1px solid #ddd; color: #333; 
-    padding: 12px 45px; border-radius: 50px; cursor: pointer; 
-    transition: 0.3s; font-size: 0.95rem; letter-spacing: 0.5px;
+    background: #fff; border: 1px solid #eee; color: #444; 
+    padding: 10px 35px; border-radius: 50px; cursor: pointer; 
+    transition: 0.3s; font-size: 0.9rem;
 }
-.more-btn:hover { background: #222; color: #fff; border-color: #222; }
+.more-btn:hover { background: #222; color: #fff; }
 
-/* 三点跳动 Loader */
+/* Loader */
 .spinner-loader { width: 70px; text-align: center; }
 .spinner-loader > div {
-    width: 10px; height: 10px; background-color: #888;
+    width: 8px; height: 8px; background-color: #ccc;
     border-radius: 100%; display: inline-block;
     animation: sk-bouncedelay 1.4s infinite ease-in-out both;
 }
@@ -117,10 +140,10 @@
 .spinner-loader .bounce2 { animation-delay: -0.16s; }
 @keyframes sk-bouncedelay { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
-/* PhotoSwipe EXIF 样式 */
+/* PhotoSwipe Caption */
 .pswp__custom-caption {
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
-    color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+    color: #fff; padding: 5px 12px; border-radius: 15px; font-size: 11px;
     position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
     pointer-events: none; opacity: 0; transition: opacity 0.3s;
 }
@@ -131,35 +154,30 @@ import PhotoSwipeLightbox from 'https://esm.sh/photoswipe@5.4.3/lightbox';
 import PhotoSwipe from 'https://esm.sh/photoswipe@5.4.3';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 核心元素获取
     const rawItems = Array.from(document.querySelectorAll('#raw-items .grid-item'));
     const gridContainer = document.getElementById('gallery');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const loadMoreBtn = document.getElementById('load-more-btn');
     const loader = document.getElementById('loader');
     
-    // 状态管理
     let currentFilter = 'all';
     let visibleCount = 0;
-    let perPage = 9; // 每次加载数量
-    let isAutoLoad = false; // 点击后变为 true
-    let isLoading = false;  // 加载锁
-    let columnsElements = []; // 存储列 DOM
+    let perPage = 9;
+    let isAutoLoad = false;
+    let isLoading = false;
+    let columnsElements = [];
 
-    // 1. 响应式列数计算
     const getColumnCount = () => {
         const w = window.innerWidth;
-        if (w < 600) return 1;  // 手机单列
-        if (w < 900) return 2;  // 平板双列
-        return 3;               // 电脑三列
+        if (w < 600) return 2; // 移动端建议双列，视觉效果更好
+        if (w < 1000) return 3;
+        return 4; // PC端建议4列
     };
 
-    // 2. 初始化列结构 (Flex 布局核心)
     const setupColumns = () => {
         gridContainer.innerHTML = '';
         columnsElements = [];
         const count = getColumnCount();
-        
         for (let i = 0; i < count; i++) {
             const col = document.createElement('div');
             col.className = 'grid-column';
@@ -168,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 懒加载观察器
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -176,14 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (img.dataset.src) {
                     img.src = img.dataset.src;
                     img.onload = () => img.classList.add('loaded');
-                    img.removeAttribute('data-src');
                 }
                 observer.unobserve(img);
             }
         });
-    }, { rootMargin: '300px' }); // 提前300px加载图片
+    }, { rootMargin: '400px' });
 
-    // 3. 核心渲染逻辑 (完美修复跳动和单列BUG)
     const renderNextItems = () => {
         if (isLoading) return;
         isLoading = true;
@@ -192,41 +207,27 @@ document.addEventListener('DOMContentLoaded', () => {
             currentFilter === 'all' || item.dataset.category === currentFilter
         );
 
-        // 计算本次需要渲染的范围
         const start = visibleCount;
         const end = Math.min(start + perPage, filtered.length);
         const colCount = columnsElements.length;
 
-        // 如果没有列，先初始化
         if (colCount === 0) setupColumns();
 
         for (let i = start; i < end; i++) {
-            const item = filtered[i].cloneNode(true); // 克隆节点
-            
-            // --- 关键算法：轮询分发 ---
-            // 直接根据索引分配列：0->Col1, 1->Col2, 2->Col3, 3->Col1...
-            // 这保证了即使图片高度未加载，列也是平衡的，不会挤在一列
+            const item = filtered[i].cloneNode(true);
             const targetColIndex = i % colCount; 
-            
-            // 设置阶梯动画延迟 (让图片一张张浮现)
-            item.style.animationDelay = `${(i - start) * 0.05}s`;
-            
+            item.style.animationDelay = `${(i - start) * 0.08}s`;
             columnsElements[targetColIndex].appendChild(item);
-            
-            // 激活懒加载
             const img = item.querySelector('img');
             observer.observe(img);
         }
 
         visibleCount = end;
-        
-        // 渲染完成后的状态处理
         setTimeout(() => { 
             isLoading = false; 
             loader.style.display = 'none';
-        }, 100); // 微小的缓冲
+        }, 200);
 
-        // 按钮显隐逻辑
         if (visibleCount >= filtered.length) {
             loadMoreBtn.style.display = 'none';
         } else if (!isAutoLoad) {
@@ -234,72 +235,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 4. 事件监听
-    
-    // 窗口大小改变：重置布局
-    let resizeTimer;
     window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            // 只有当列数需求改变时才重排 (如从PC变手机)
+        clearTimeout(window.rtimer);
+        window.rtimer = setTimeout(() => {
             if (columnsElements.length !== getColumnCount()) {
-                setupColumns(); 
-                // 重置可见数量，重新渲染当前已加载的所有图片
                 const countToRestore = visibleCount;
+                setupColumns(); 
                 visibleCount = 0;
-                // 临时提高每页数量以一次性恢复
                 const originalPerPage = perPage;
                 perPage = countToRestore;
                 renderNextItems();
                 perPage = originalPerPage;
             }
-        }, 200);
+        }, 300);
     });
 
-    // 滚动监听 (仅在 autoLoad 激活后生效)
     window.addEventListener('scroll', () => {
         if (!isAutoLoad || isLoading) return;
-        // 距离底部 500px 时触发
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600) {
             loader.style.display = 'block';
             renderNextItems();
         }
     });
 
-    // 过滤器切换
     filterBtns.forEach(btn => btn.addEventListener('click', () => {
         if(btn.classList.contains('active')) return;
-        
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
-        
-        // 重置所有状态
         isAutoLoad = false;
         visibleCount = 0;
-        loader.style.display = 'none';
-        
         setupColumns();
         renderNextItems();
     }));
 
-    // 点击“加载更多”
     loadMoreBtn.addEventListener('click', () => {
-        isAutoLoad = true; // 开启无限滚动模式
+        isAutoLoad = true;
         loadMoreBtn.style.display = 'none';
         loader.style.display = 'block';
         renderNextItems();
     });
 
-    // 5. 初始化 PhotoSwipe
     const lightbox = new PhotoSwipeLightbox({
         gallery: '#gallery',
         children: 'a.pswp-link',
-        pswpModule: PhotoSwipe,
-        padding: { top: 20, bottom: 40, left: 20, right: 20 }
+        pswpModule: PhotoSwipe
     });
     
-    // EXIF 数据处理
     lightbox.addFilter('domItemData', (itemData, element, link) => {
         if (link) {
             const exifDiv = link.querySelector('.exif-data');
@@ -326,7 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     lightbox.init();
 
-    // 6. 页面首次启动
     setupColumns();
     renderNextItems();
 });
