@@ -4,6 +4,8 @@ draft = false
 title = 'Mac mini M4 搭建 Minecraft 高性能服务器教程'
 description = '关于如何使用Mac mini搭建我的世界整合包服务器教程'
 author = 'SmileSion'
+tags = ["Java","MacOs","Minecraft"]
+
 
 +++
 

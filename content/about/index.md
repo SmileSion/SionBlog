@@ -2,10 +2,11 @@
 date = '2026-01-07T08:00:00+08:00'
 draft = false
 title = 'About Me'
+tags = ["About","Profile","Welcome"]
 
 +++
 
-欢迎来到我的博客！
+欢迎来到SmileSion的技术博客！
 
 这里记录了我的一些技术文章、摄影作品以及杂七杂八。
 
