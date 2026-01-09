@@ -2,6 +2,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <div class="wish-wall-container">
+    <div id="submit-feedback" class="modern-toast">您的信已寄向星空...</div>
+
     <div class="wish-header-minimal">
         <div class="live-indicator">
             <span class="dot"></span>
@@ -18,15 +20,13 @@
     </div>
     
     <div class="wish-input-wrapper">
-        <div id="submit-feedback" class="modern-toast">您的信已寄向星空...</div>
-        
         <div class="floating-input-group" id="input-group-main">
             <div class="form-body">
                 <div class="name-container highlight-input">
-                    <input type="text" id="wish-nickname" placeholder="在此留下你的名字/昵称..." maxlength="10">
+                    <input type="text" id="wish-nickname" placeholder="在此留下你的名字/昵称..." maxlength="10" autocomplete="off">
                 </div>
                 <div class="content-container">
-                    <textarea id="wish-content" placeholder="写下关于未来的期许...（博主审核后展示哦）" maxlength="50" rows="2" oninput="updateCharCount()"></textarea>
+                    <textarea id="wish-content" placeholder="写下关于未来的期许..." maxlength="50" rows="1" oninput="updateCharCount()"></textarea>
                     <span id="char-count" class="char-counter">0/50</span>
                 </div>
             </div>
@@ -42,89 +42,82 @@
 :root {
     --accent: #3b82f6;
     --accent-light: rgba(59, 130, 246, 0.1);
-    --glass: rgba(255, 255, 255, 0.7);
+    --glass: rgba(255, 255, 255, 0.8);
     --border: rgba(0, 0, 0, 0.08);
-    --text-main: #1e293b;
-    --text-dim: #64748b;
+    --text-main: #1d1d1f;
+    --text-dim: #86868b;
     --theme: #ffffff;
 }
 
-/* 署名栏高亮动画 */
-.highlight-input {
-    border-bottom: 1px solid var(--accent-light);
-    margin-bottom: 4px;
-    animation: border-pulse 3s infinite ease-in-out;
-}
+/* 基础布局 */
+.wish-wall-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.wish-header-minimal { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; }
+.brand-title { font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.2; }
+.live-indicator { display: flex; align-items: center; font-size: 0.75rem; color: var(--text-dim); }
+.live-indicator .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
 
-@keyframes border-pulse {
-    0%, 100% { border-bottom-color: rgba(59, 130, 246, 0.2); }
-    50% { border-bottom-color: rgba(59, 130, 246, 0.8); }
-}
+/* 弹幕区域自适应 */
+.wish-stream-wrapper { position: relative; width: 100%; height: 420px; overflow: hidden; margin: 10px 0; border-radius: 24px; background: transparent; }
 
-/* 弹幕及整体布局 */
-.wish-header-minimal { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; }
-.brand-title { font-weight: 800; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.3; }
-.live-indicator { display: flex; align-items: center; font-size: 0.85rem; color: var(--text-dim); }
-.live-indicator .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
-
-.wish-stream-wrapper { position: relative; width: 100%; height: 460px; overflow: hidden; margin: 20px 0; border-radius: 30px; }
+/* 弹幕项：更紧凑 */
 .danmaku-item {
     position: absolute; left: 100%; white-space: nowrap;
-    padding: 10px 22px; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border); border-radius: 100px;
-    color: var(--text-main); font-size: 0.95rem; font-weight: 500;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 10px;
+    padding: 6px 14px; background: var(--item-bg); 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--item-border); border-radius: 100px;
+    color: var(--text-main); font-size: 0.85rem; font-weight: 500;
+    box-shadow: 0 4px 15px -3px var(--item-shadow); 
+    display: flex; align-items: center; gap: 6px; z-index: 1; will-change: transform;
 }
-.danmaku-item:hover { animation-play-state: paused !important; border-color: var(--accent); z-index: 50; }
-.danmaku-item .d-name { font-size: 0.7rem; color: var(--accent); font-weight: 700; background: var(--accent-light); padding: 2px 10px; border-radius: 10px; }
+.danmaku-item:hover { animation-play-state: paused !important; z-index: 100; transform: scale(1.05); }
+.danmaku-item .d-name { font-size: 0.6rem; color: var(--item-accent); font-weight: 700; background: var(--item-accent-bg); padding: 1px 6px; border-radius: 6px; }
 
-/* 输入框 */
-.wish-input-wrapper { display: flex; justify-content: center; position: relative; padding: 30px 15px; }
+/* 底部输入框优化 */
+.wish-input-wrapper { display: flex; justify-content: center; padding: 15px 12px 30px; }
 .floating-input-group {
-    display: flex; align-items: flex-end; background: var(--glass); backdrop-filter: blur(30px);
-    padding: 12px 16px; border-radius: 24px; border: 1px solid var(--border);
-    width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    display: flex; align-items: center; background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    padding: 10px 14px; border-radius: 22px; border: 1px solid var(--border);
+    width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
-.form-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.name-container input { 
-    width: 100%; background: transparent; border: none; outline: none; 
-    padding: 4px 8px; color: var(--accent); font-size: 0.85rem; font-weight: 700; 
-}
-/* 署名栏聚焦时变亮 */
-.name-container input:focus { color: #2563eb; }
-
+.form-body { flex: 1; display: flex; flex-direction: column; }
+.name-container input { width: 100%; background: transparent; border: none; outline: none; padding: 2px 8px; color: var(--accent); font-size: 0.8rem; font-weight: 700; }
+.highlight-input { border-bottom: 1px solid var(--accent-light); margin-bottom: 4px; animation: border-pulse 3s infinite; }
 .content-container { position: relative; }
-.content-container textarea { 
-    width: 100%; background: transparent; border: none; outline: none; 
-    padding: 8px; color: var(--text-main); font-size: 1rem; resize: none; font-family: inherit; line-height: 1.4; min-height: 55px; 
-}
+.content-container textarea { width: 100%; background: transparent; border: none; outline: none; padding: 4px 8px; color: var(--text-main); font-size: 0.95rem; resize: none; line-height: 1.4; }
+.char-counter { position: absolute; bottom: 0; right: 8px; font-size: 0.65rem; color: var(--text-dim); opacity: 0.4; }
 
-.char-counter {
-    position: absolute; bottom: -2px; right: 10px;
-    font-size: 0.7rem; color: var(--text-dim); opacity: 0.5;
-}
-
-.send-btn {
-    background: var(--text-main); color: white; border: none; 
-    width: 44px; height: 44px; border-radius: 15px; cursor: pointer; 
-    display: flex; align-items: center; justify-content: center;
-    transition: 0.3s; margin-left: 10px; margin-bottom: 4px;
-}
-.send-btn:hover { background: var(--accent); transform: scale(1.05); }
-
+/* 重点修复：发送成功文字样式 */
 .modern-toast {
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    z-index: 1000; background: var(--text-main); color: white; padding: 10px 24px; border-radius: 100px;
-    font-size: 0.85rem; opacity: 0; pointer-events: none; transition: 0.4s;
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
+    z-index: 2000; background: #000; color: #fff; padding: 10px 24px; border-radius: 100px;
+    font-size: 0.85rem; font-weight: 500; opacity: 0; pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
-.modern-toast.show { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+.modern-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-.stage-gradient { position: absolute; top: 0; width: 15%; height: 100%; z-index: 10; pointer-events: none; }
+/* 按钮交互 */
+.send-btn {
+    background: var(--text-main); color: white; border: none; width: 44px; height: 44px; border-radius: 14px; 
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: 10px; flex-shrink: 0;
+}
+.send-btn:hover { background: var(--accent) !important; transform: scale(1.15); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+.send-btn:active { transform: scale(0.9); }
+
+/* 遮罩 */
+.stage-gradient { position: absolute; top: 0; width: 10%; height: 100%; z-index: 10; pointer-events: none; }
 .mask-l { left: 0; background: linear-gradient(to right, var(--theme), transparent); }
 .mask-r { right: 0; background: linear-gradient(to left, var(--theme), transparent); }
 
-@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
-@keyframes danmaku-move { from { transform: translateX(0); } to { transform: translateX(calc(-110% - 110vw)); } }
+@keyframes border-pulse { 0%, 100% { border-bottom-color: rgba(59, 130, 246, 0.1); } 50% { border-bottom-color: rgba(59, 130, 246, 0.6); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+@keyframes danmaku-move { from { transform: translateX(0); } to { transform: translateX(calc(-105% - 100vw)); } }
+
+/* 移动端安全区适配 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .wish-input-wrapper { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+}
 </style>
 
 <script>
@@ -132,47 +125,67 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhbGxvZ2dvcW5zZmFjYmF5eWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NDMzODEsImV4cCI6MjA4MzQxOTM4MX0.YJGo-ujknVZOBhclaxR0q4U4hX1CMk9NlNU2P4hndfs';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let wishes = [];
-    const TRACK_COUNT = 8;
+    const appleColors = [
+        { accent: '#007AFF', bg: 'rgba(235, 245, 255, 0.85)', border: 'rgba(0, 122, 255, 0.12)', shadow: 'rgba(0, 122, 255, 0.08)' },
+        { accent: '#AF52DE', bg: 'rgba(245, 238, 255, 0.85)', border: 'rgba(175, 82, 222, 0.12)', shadow: 'rgba(175, 82, 222, 0.08)' },
+        { accent: '#FF2D55', bg: 'rgba(255, 235, 240, 0.85)', border: 'rgba(255, 45, 85, 0.12)', shadow: 'rgba(255, 45, 85, 0.08)' },
+        { accent: '#34C759', bg: 'rgba(232, 252, 236, 0.85)', border: 'rgba(52, 199, 89, 0.12)', shadow: 'rgba(52, 199, 89, 0.08)' },
+        { accent: '#FF9500', bg: 'rgba(255, 247, 230, 0.85)', border: 'rgba(255, 149, 0, 0.12)', shadow: 'rgba(255, 149, 0, 0.08)' }
+    ];
+
+    let allWishes = [];
+    let wishQueue = [];
+    // 动态计算轨道数：手机端8轨，PC端12轨
+    const TRACK_COUNT = window.innerWidth < 500 ? 8 : 12;
     let trackLastTime = new Array(TRACK_COUNT).fill(0);
 
     async function init() {
-        // 只加载已审核
         const { data, count } = await _supabase.from('wishes').select('*', { count: 'exact' }).eq('is_approved', true);
-        if (data) {
-            wishes = data;
-            document.getElementById('wish-count').innerText = `已收集 ${count || 0} 条关于未来的低语`;
+        if (data && data.length > 0) {
+            allWishes = data;
+            wishQueue = [...allWishes].sort(() => Math.random() - 0.5);
+            document.getElementById('wish-count').innerText = `已收集 ${count || 0} 条低语`;
             startEngine();
         }
     }
 
-    function updateCharCount() {
-        const content = document.getElementById('wish-content').value;
-        document.getElementById('char-count').innerText = `${content.length}/50`;
-    }
-
     function startEngine() {
         setInterval(() => {
-            if (wishes.length === 0) return;
-            const wish = wishes[Math.floor(Math.random() * wishes.length)];
+            if (allWishes.length === 0) return;
+            if (wishQueue.length === 0) wishQueue = [...allWishes].sort(() => Math.random() - 0.5);
+
             const now = Date.now();
-            let tracks = [];
-            trackLastTime.forEach((t, i) => { if (now - t > 3800) tracks.push(i); });
-            if (tracks.length > 0) {
-                const track = tracks[Math.floor(Math.random() * tracks.length)];
+            let availableTracks = [];
+            const minGap = window.innerWidth < 500 ? 4000 : 3200;
+            trackLastTime.forEach((t, i) => { if (now - t > minGap) availableTracks.push(i); });
+            
+            if (availableTracks.length > 0) {
+                const track = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+                const wish = wishQueue.shift();
                 trackLastTime[track] = now;
                 createDanmaku(wish, track);
             }
-        }, 2000);
+        }, 1300);
     }
 
     function createDanmaku(wish, track) {
         const container = document.getElementById('wish-stream');
         const el = document.createElement('div');
+        const color = appleColors[Math.floor(Math.random() * appleColors.length)];
+        
         el.className = 'danmaku-item';
+        el.style.setProperty('--item-bg', color.bg);
+        el.style.setProperty('--item-accent', color.accent);
+        el.style.setProperty('--item-accent-bg', color.border);
+        el.style.setProperty('--item-border', color.border);
+        el.style.setProperty('--item-shadow', color.shadow);
+
         el.innerHTML = `<span class="d-name">${wish.nickname}</span> ${wish.content}`;
-        el.style.top = `${(track * (100 / TRACK_COUNT)) + 5}%`;
-        el.style.animation = `danmaku-move ${25 + Math.random() * 10}s linear forwards`;
+        el.style.top = `${(track * (92 / TRACK_COUNT)) + 4}%`;
+        
+        const duration = (window.innerWidth < 500 ? 12 : 18) + Math.random() * 10; 
+        el.style.animation = `danmaku-move ${duration}s linear forwards`;
+        
         container.appendChild(el);
         el.addEventListener('animationend', () => el.remove());
     }
@@ -188,7 +201,9 @@
         const { error } = await _supabase.from('wishes').insert([{ content, nickname, is_approved: false }]);
 
         if (!error) {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#3b82f6', '#ffffff'] });
+            confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 } });
+            
+            // 显示 Toast
             const toast = document.getElementById('submit-feedback');
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
@@ -196,8 +211,14 @@
             document.getElementById('wish-content').value = '';
             document.getElementById('wish-nickname').value = '';
             updateCharCount();
+            document.activeElement.blur(); // 收起键盘
         }
         btn.disabled = false;
+    }
+
+    function updateCharCount() {
+        const content = document.getElementById('wish-content').value;
+        document.getElementById('char-count').innerText = `${content.length}/50`;
     }
 
     init();
