@@ -1,19 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<div id="admin-tools" class="admin-panel-premium" style="display:none;">
-    <div class="admin-header-glass">
-        <div class="admin-info">
-            <span class="admin-tag">MANAGEMENT</span>
-            <h3>待处理请求 <span id="admin-pending-count" class="count-badge">0</span></h3>
-        </div>
-        <button onclick="renderAdminList()" class="icon-btn-refresh" id="admin-refresh-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
-        </button>
-    </div>
-    <div id="pending-list" class="admin-card-grid"></div>
-</div>
-
 <div class="wish-wall-container">
     <div class="wish-header-minimal">
         <div class="live-indicator">
@@ -35,11 +22,11 @@
         
         <div class="floating-input-group" id="input-group-main">
             <div class="form-body">
-                <div class="name-container">
-                    <input type="text" id="wish-nickname" placeholder="添加署名..." maxlength="10">
+                <div class="name-container highlight-input">
+                    <input type="text" id="wish-nickname" placeholder="在此留下你的名字/昵称..." maxlength="10">
                 </div>
                 <div class="content-container">
-                    <textarea id="wish-content" placeholder="输入关于未来的期许...（博主审核后放上去展示哦～）" maxlength="50" rows="2" oninput="updateCharCount()"></textarea>
+                    <textarea id="wish-content" placeholder="写下关于未来的期许...（博主审核后展示哦）" maxlength="50" rows="2" oninput="updateCharCount()"></textarea>
                     <span id="char-count" class="char-counter">0/50</span>
                 </div>
             </div>
@@ -55,33 +42,26 @@
 :root {
     --accent: #3b82f6;
     --accent-light: rgba(59, 130, 246, 0.1);
-    --glass: rgba(255, 255, 255, 0.6);
+    --glass: rgba(255, 255, 255, 0.7);
     --border: rgba(0, 0, 0, 0.08);
     --text-main: #1e293b;
     --text-dim: #64748b;
     --theme: #ffffff;
 }
 
-/* 管理员面板样式 */
-.admin-panel-premium {
-    max-width: 1000px; margin: 0 auto 3rem;
-    background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 24px; padding: 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.05); animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+/* 署名栏高亮动画 */
+.highlight-input {
+    border-bottom: 1px solid var(--accent-light);
+    margin-bottom: 4px;
+    animation: border-pulse 3s infinite ease-in-out;
 }
-.admin-header-glass { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.admin-tag { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 6px; }
-.admin-info h3 { margin: 8px 0 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
-.count-badge { background: var(--text-main); color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; margin-left: 8px; }
-.admin-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.admin-card { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; padding: 20px; transition: transform 0.3s; }
-.admin-card p { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; margin: 0 0 16px; }
-.admin-btns { display: flex; gap: 8px; }
-.admin-btns button { flex: 1; border: none; padding: 10px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
-.approve-btn { background: var(--text-main); color: white; }
-.delete-btn { background: rgba(0,0,0,0.03); color: var(--text-dim); }
 
-/* 弹幕区域 */
+@keyframes border-pulse {
+    0%, 100% { border-bottom-color: rgba(59, 130, 246, 0.2); }
+    50% { border-bottom-color: rgba(59, 130, 246, 0.8); }
+}
+
+/* 弹幕及整体布局 */
 .wish-header-minimal { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; }
 .brand-title { font-weight: 800; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.3; }
 .live-indicator { display: flex; align-items: center; font-size: 0.85rem; color: var(--text-dim); }
@@ -94,58 +74,48 @@
     border: 1px solid var(--border); border-radius: 100px;
     color: var(--text-main); font-size: 0.95rem; font-weight: 500;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 10px;
-    z-index: 1; transition: border-color 0.3s, box-shadow 0.3s;
 }
-
-/* 恢复鼠标暂停逻辑 */
-.danmaku-item:hover {
-    animation-play-state: paused !important;
-    border-color: var(--accent);
-    box-shadow: 0 10px 25px var(--accent-light);
-    z-index: 50;
-    cursor: default;
-}
-
+.danmaku-item:hover { animation-play-state: paused !important; border-color: var(--accent); z-index: 50; }
 .danmaku-item .d-name { font-size: 0.7rem; color: var(--accent); font-weight: 700; background: var(--accent-light); padding: 2px 10px; border-radius: 10px; }
 
-/* 输入区样式 */
+/* 输入框 */
 .wish-input-wrapper { display: flex; justify-content: center; position: relative; padding: 30px 15px; }
 .floating-input-group {
-    display: flex; align-items: flex-end; background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+    display: flex; align-items: flex-end; background: var(--glass); backdrop-filter: blur(30px);
     padding: 12px 16px; border-radius: 24px; border: 1px solid var(--border);
-    width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); position: relative;
+    width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.08);
 }
 .form-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.name-container input { width: 100%; background: transparent; border: none; outline: none; padding: 0 8px; color: var(--accent); font-size: 0.8rem; font-weight: 700; }
+.name-container input { 
+    width: 100%; background: transparent; border: none; outline: none; 
+    padding: 4px 8px; color: var(--accent); font-size: 0.85rem; font-weight: 700; 
+}
+/* 署名栏聚焦时变亮 */
+.name-container input:focus { color: #2563eb; }
 
-.content-container { position: relative; display: flex; flex-direction: column; }
+.content-container { position: relative; }
 .content-container textarea { 
     width: 100%; background: transparent; border: none; outline: none; 
-    padding: 8px 8px 20px 8px; /* 底部留空间给计数器 */
-    color: var(--text-main); font-size: 1rem; resize: none; font-family: inherit; line-height: 1.4; min-height: 55px; 
+    padding: 8px; color: var(--text-main); font-size: 1rem; resize: none; font-family: inherit; line-height: 1.4; min-height: 55px; 
 }
 
-/* 字数统计样式 */
 .char-counter {
-    position: absolute; bottom: 2px; right: 10px;
-    font-size: 0.7rem; color: var(--text-dim); opacity: 0.6;
-    pointer-events: none;
+    position: absolute; bottom: -2px; right: 10px;
+    font-size: 0.7rem; color: var(--text-dim); opacity: 0.5;
 }
 
 .send-btn {
     background: var(--text-main); color: white; border: none; 
-    width: 40px; height: 40px; border-radius: 14px; cursor: pointer; 
+    width: 44px; height: 44px; border-radius: 15px; cursor: pointer; 
     display: flex; align-items: center; justify-content: center;
-    transition: 0.3s; flex-shrink: 0; margin-bottom: 5px;
+    transition: 0.3s; margin-left: 10px; margin-bottom: 4px;
 }
-.send-btn svg { width: 18px; height: 18px; }
 .send-btn:hover { background: var(--accent); transform: scale(1.05); }
 
-/* Toast 提示 */
 .modern-toast {
     position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
     z-index: 1000; background: var(--text-main); color: white; padding: 10px 24px; border-radius: 100px;
-    font-size: 0.85rem; font-weight: 600; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    font-size: 0.85rem; opacity: 0; pointer-events: none; transition: 0.4s;
 }
 .modern-toast.show { opacity: 1; transform: translateX(-50%) translateY(-20px); }
 
@@ -153,11 +123,8 @@
 .mask-l { left: 0; background: linear-gradient(to right, var(--theme), transparent); }
 .mask-r { right: 0; background: linear-gradient(to left, var(--theme), transparent); }
 
-@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes danmaku-move { from { transform: translateX(0); } to { transform: translateX(calc(-110% - 110vw)); } }
-.rotating svg { animation: spin 1s infinite linear; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
 
 <script>
@@ -168,43 +135,35 @@
     let wishes = [];
     const TRACK_COUNT = 8;
     let trackLastTime = new Array(TRACK_COUNT).fill(0);
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdmin = urlParams.get('admin') === 'true';
 
     async function init() {
+        // 只加载已审核
         const { data, count } = await _supabase.from('wishes').select('*', { count: 'exact' }).eq('is_approved', true);
         if (data) {
             wishes = data;
             document.getElementById('wish-count').innerText = `已收集 ${count || 0} 条关于未来的低语`;
             startEngine();
         }
-        if (isAdmin) {
-            document.getElementById('admin-tools').style.display = 'block';
-            renderAdminList();
-        }
     }
 
-    // 更新字数统计逻辑
     function updateCharCount() {
         const content = document.getElementById('wish-content').value;
-        const count = content.length;
-        document.getElementById('char-count').innerText = `${count}/50`;
+        document.getElementById('char-count').innerText = `${content.length}/50`;
     }
 
     function startEngine() {
-        if (window.engine) clearInterval(window.engine);
-        window.engine = setInterval(() => {
+        setInterval(() => {
             if (wishes.length === 0) return;
             const wish = wishes[Math.floor(Math.random() * wishes.length)];
             const now = Date.now();
             let tracks = [];
-            trackLastTime.forEach((t, i) => { if (now - t > 3500) tracks.push(i); });
+            trackLastTime.forEach((t, i) => { if (now - t > 3800) tracks.push(i); });
             if (tracks.length > 0) {
                 const track = tracks[Math.floor(Math.random() * tracks.length)];
                 trackLastTime[track] = now;
                 createDanmaku(wish, track);
             }
-        }, 1800);
+        }, 2000);
     }
 
     function createDanmaku(wish, track) {
@@ -213,7 +172,7 @@
         el.className = 'danmaku-item';
         el.innerHTML = `<span class="d-name">${wish.nickname}</span> ${wish.content}`;
         el.style.top = `${(track * (100 / TRACK_COUNT)) + 5}%`;
-        el.style.animation = `danmaku-move ${22 + Math.random() * 12}s linear forwards`;
+        el.style.animation = `danmaku-move ${25 + Math.random() * 10}s linear forwards`;
         container.appendChild(el);
         el.addEventListener('animationend', () => el.remove());
     }
@@ -232,48 +191,13 @@
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#3b82f6', '#ffffff'] });
             const toast = document.getElementById('submit-feedback');
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
             
-            // 重置输入
             document.getElementById('wish-content').value = '';
             document.getElementById('wish-nickname').value = '';
-            updateCharCount(); // 同步更新统计
-            if (isAdmin) renderAdminList();
+            updateCharCount();
         }
         btn.disabled = false;
-    }
-
-    async function renderAdminList() {
-        const btn = document.getElementById('admin-refresh-btn');
-        btn.classList.add('rotating');
-        const { data } = await _supabase.from('wishes').select('*').eq('is_approved', false).order('created_at', { ascending: false });
-        if (data) {
-            document.getElementById('admin-pending-count').innerText = data.length;
-            document.getElementById('pending-list').innerHTML = data.map(w => `
-                <div class="admin-card">
-                    <p>${w.content} <small style="display:block; margin-top:8px; opacity:0.5">— ${w.nickname}</small></p>
-                    <div class="admin-btns">
-                        <button class="approve-btn" onclick="approveWish(${w.id})">发布</button>
-                        <button class="delete-btn" onclick="deleteWish(${w.id})">拒绝</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        setTimeout(() => btn.classList.remove('rotating'), 600);
-    }
-
-    async function approveWish(id) {
-        await _supabase.from('wishes').update({ is_approved: true }).eq('id', id);
-        renderAdminList();
-        const { data } = await _supabase.from('wishes').select('*').eq('is_approved', true);
-        if (data) wishes = data;
-    }
-
-    async function deleteWish(id) {
-        if(confirm('丢弃这条消息吗？')) {
-            await _supabase.from('wishes').delete().eq('id', id);
-            renderAdminList();
-        }
     }
 
     init();
