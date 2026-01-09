@@ -32,7 +32,10 @@
             </div>
             
             <button onclick="submitWish()" id="submit-btn" class="send-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
             </button>
         </div>
     </div>
@@ -42,24 +45,23 @@
 :root {
     --accent: #3b82f6;
     --accent-light: rgba(59, 130, 246, 0.1);
-    --glass: rgba(255, 255, 255, 0.8);
+    --glass: rgba(255, 255, 255, 0.85);
     --border: rgba(0, 0, 0, 0.08);
     --text-main: #1d1d1f;
     --text-dim: #86868b;
     --theme: #ffffff;
 }
 
-/* 基础布局 */
-.wish-wall-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.wish-wall-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
+
+/* 头部样式 */
 .wish-header-minimal { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; }
 .brand-title { font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.2; }
 .live-indicator { display: flex; align-items: center; font-size: 0.75rem; color: var(--text-dim); }
 .live-indicator .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
 
-/* 弹幕区域自适应 */
-.wish-stream-wrapper { position: relative; width: 100%; height: 420px; overflow: hidden; margin: 10px 0; border-radius: 24px; background: transparent; }
-
-/* 弹幕项：更紧凑 */
+/* 弹幕核心控制 */
+.wish-stream-wrapper { position: relative; width: 100%; height: 420px; overflow: hidden; margin: 5px 0; border-radius: 24px; }
 .danmaku-item {
     position: absolute; left: 100%; white-space: nowrap;
     padding: 6px 14px; background: var(--item-bg); 
@@ -67,54 +69,55 @@
     border: 1px solid var(--item-border); border-radius: 100px;
     color: var(--text-main); font-size: 0.85rem; font-weight: 500;
     box-shadow: 0 4px 15px -3px var(--item-shadow); 
-    display: flex; align-items: center; gap: 6px; z-index: 1; will-change: transform;
+    display: flex; align-items: center; gap: 6px; will-change: transform;
 }
-.danmaku-item:hover { animation-play-state: paused !important; z-index: 100; transform: scale(1.05); }
 .danmaku-item .d-name { font-size: 0.6rem; color: var(--item-accent); font-weight: 700; background: var(--item-accent-bg); padding: 1px 6px; border-radius: 6px; }
 
-/* 底部输入框优化 */
-.wish-input-wrapper { display: flex; justify-content: center; padding: 15px 12px 30px; }
+/* 底部输入框 */
+.wish-input-wrapper { display: flex; justify-content: center; padding: 15px 12px 35px; }
 .floating-input-group {
-    display: flex; align-items: center; background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-    padding: 10px 14px; border-radius: 22px; border: 1px solid var(--border);
-    width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex; align-items: center; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 8px 12px; border-radius: 22px; border: 1px solid var(--border);
+    width: 100%; max-width: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
-.form-body { flex: 1; display: flex; flex-direction: column; }
+.form-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .name-container input { width: 100%; background: transparent; border: none; outline: none; padding: 2px 8px; color: var(--accent); font-size: 0.8rem; font-weight: 700; }
-.highlight-input { border-bottom: 1px solid var(--accent-light); margin-bottom: 4px; animation: border-pulse 3s infinite; }
+.highlight-input { border-bottom: 1px solid var(--accent-light); margin-bottom: 2px; animation: border-pulse 3s infinite; }
 .content-container { position: relative; }
 .content-container textarea { width: 100%; background: transparent; border: none; outline: none; padding: 4px 8px; color: var(--text-main); font-size: 0.95rem; resize: none; line-height: 1.4; }
 .char-counter { position: absolute; bottom: 0; right: 8px; font-size: 0.65rem; color: var(--text-dim); opacity: 0.4; }
 
-/* 重点修复：发送成功文字样式 */
+/* 按钮修复 */
+.send-btn {
+    background: var(--text-main); color: white; border: none; 
+    width: 44px; height: 44px; border-radius: 15px; 
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: 10px; flex-shrink: 0;
+    padding: 0; outline: none; -webkit-tap-highlight-color: transparent;
+}
+.send-icon { width: 20px; height: 20px; min-width: 20px; min-height: 20px; } /* 强制图标尺寸 */
+
+.send-btn:hover { background: var(--accent) !important; transform: scale(1.1); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+.send-btn:active { transform: scale(0.9); }
+
+/* Toast 修复 */
 .modern-toast {
-    position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
-    z-index: 2000; background: #000; color: #fff; padding: 10px 24px; border-radius: 100px;
-    font-size: 0.85rem; font-weight: 500; opacity: 0; pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    position: absolute; top: 15px; left: 50%; transform: translateX(-50%) translateY(-30px);
+    z-index: 9999; background: rgba(0,0,0,0.9); color: #fff; padding: 10px 22px; border-radius: 100px;
+    font-size: 0.8rem; font-weight: 500; opacity: 0; pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .modern-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* 按钮交互 */
-.send-btn {
-    background: var(--text-main); color: white; border: none; width: 44px; height: 44px; border-radius: 14px; 
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: 10px; flex-shrink: 0;
-}
-.send-btn:hover { background: var(--accent) !important; transform: scale(1.15); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
-.send-btn:active { transform: scale(0.9); }
+/* 动画 */
+@keyframes border-pulse { 0%, 100% { border-bottom-color: rgba(59, 130, 246, 0.1); } 50% { border-bottom-color: rgba(59, 130, 246, 0.6); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+@keyframes danmaku-move { from { transform: translateX(0); } to { transform: translateX(calc(-110% - 100vw)); } }
 
-/* 遮罩 */
-.stage-gradient { position: absolute; top: 0; width: 10%; height: 100%; z-index: 10; pointer-events: none; }
+.stage-gradient { position: absolute; top: 0; width: 8%; height: 100%; z-index: 10; pointer-events: none; }
 .mask-l { left: 0; background: linear-gradient(to right, var(--theme), transparent); }
 .mask-r { right: 0; background: linear-gradient(to left, var(--theme), transparent); }
 
-@keyframes border-pulse { 0%, 100% { border-bottom-color: rgba(59, 130, 246, 0.1); } 50% { border-bottom-color: rgba(59, 130, 246, 0.6); } }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
-@keyframes danmaku-move { from { transform: translateX(0); } to { transform: translateX(calc(-105% - 100vw)); } }
-
-/* 移动端安全区适配 */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .wish-input-wrapper { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
@@ -135,7 +138,6 @@
 
     let allWishes = [];
     let wishQueue = [];
-    // 动态计算轨道数：手机端8轨，PC端12轨
     const TRACK_COUNT = window.innerWidth < 500 ? 8 : 12;
     let trackLastTime = new Array(TRACK_COUNT).fill(0);
 
@@ -156,7 +158,7 @@
 
             const now = Date.now();
             let availableTracks = [];
-            const minGap = window.innerWidth < 500 ? 4000 : 3200;
+            const minGap = window.innerWidth < 500 ? 4500 : 3200;
             trackLastTime.forEach((t, i) => { if (now - t > minGap) availableTracks.push(i); });
             
             if (availableTracks.length > 0) {
@@ -183,7 +185,7 @@
         el.innerHTML = `<span class="d-name">${wish.nickname}</span> ${wish.content}`;
         el.style.top = `${(track * (92 / TRACK_COUNT)) + 4}%`;
         
-        const duration = (window.innerWidth < 500 ? 12 : 18) + Math.random() * 10; 
+        const duration = (window.innerWidth < 500 ? 14 : 18) + Math.random() * 10; 
         el.style.animation = `danmaku-move ${duration}s linear forwards`;
         
         container.appendChild(el);
@@ -201,9 +203,8 @@
         const { error } = await _supabase.from('wishes').insert([{ content, nickname, is_approved: false }]);
 
         if (!error) {
-            confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 } });
+            confetti({ particleCount: 70, spread: 50, origin: { y: 0.85 } });
             
-            // 显示 Toast
             const toast = document.getElementById('submit-feedback');
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
@@ -211,7 +212,7 @@
             document.getElementById('wish-content').value = '';
             document.getElementById('wish-nickname').value = '';
             updateCharCount();
-            document.activeElement.blur(); // 收起键盘
+            if(window.innerWidth < 500) document.activeElement.blur();
         }
         btn.disabled = false;
     }
