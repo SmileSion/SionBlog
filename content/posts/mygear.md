@@ -1,6 +1,8 @@
 ---
 title: "我的数码清单"
 date: 2026-01-10
+tags : ["Welcome","数码"]
+
 # 在这里定义数据，方便管理
 gadgets:
   - name: "iPad mini (A17 Pro) + Pencil Pro"

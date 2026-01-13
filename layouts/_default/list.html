@@ -1,0 +1,178 @@
+{{- define "main" }}
+
+{{- if (and site.Params.profileMode.enabled .IsHome) }}
+  {{- partial "index_profile.html" . }}
+{{- else }} {{/* if not profileMode */}}
+
+  {{- if not .IsHome | and .Title }}
+  <header class="page-header">
+    {{- partial "breadcrumbs.html" . }}
+    <h1>{{ .Title }}</h1>
+  </header>
+  {{- end }}
+
+  {{/* --- 苹果级滚动筛选栏：支持滑块与严格裁剪 --- */}}
+  {{- if or (eq .Section "posts") (eq .Kind "term") }}
+    {{- $tags := .Site.Taxonomies.tags }}
+    {{- if gt (len $tags) 0 }}
+    <style>
+      :root {
+        --apple-bg: rgba(245, 245, 247, 0.7);
+        --apple-border: rgba(210, 210, 215, 0.4);
+        --apple-active-bg: linear-gradient(135deg, #007aff, #0055ff);
+      }
+      .dark {
+        --apple-bg: rgba(28, 28, 30, 0.7);
+        --apple-border: rgba(58, 58, 60, 0.4);
+        --apple-active-bg: linear-gradient(135deg, #0a84ff, #0066cc);
+      }
+      .tag-container {
+        margin-bottom: 30px;
+        padding: 14px 14px 8px 14px;
+        border-radius: 20px;
+        background: var(--apple-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--apple-border);
+        transition: all 0.3s ease;
+      }
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-height: 82px; 
+        overflow-y: auto;
+        padding-bottom: 4px;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        align-items: center;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.1) transparent;
+      }
+      .tag-list::-webkit-scrollbar { width: 4px; }
+      .tag-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+      .dark .tag-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+      
+      .tag-list.expanded { max-height: 1200px; overflow-y: visible; }
+      
+      .tag-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.2;
+        background: var(--entry);
+        color: var(--primary);
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .tag-item.active {
+        background: var(--apple-active-bg) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 10px rgba(0, 122, 255, 0.25);
+        border: none;
+      }
+      .tag-item:hover:not(.active) { background: var(--tertiary); transform: translateY(-1px); }
+      .expand-btn {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--secondary);
+        cursor: pointer;
+        text-align: center;
+        width: 100%;
+        opacity: 0.5;
+        padding: 2px 0;
+        transition: opacity 0.2s;
+      }
+      .expand-btn:hover { opacity: 1; }
+    </style>
+
+    <div class="tag-container" id="tagContainer">
+      <div class="tag-list" id="tagList">
+        {{- $is_all_active := and (eq .Section "posts") (eq .Kind "section") }}
+        <a href="{{ "/posts" | relLangURL }}" class="tag-item {{ if $is_all_active }}active{{ end }}">全部</a>
+        {{- range $tags.ByCount }}
+          {{- $is_this_tag := false }}
+          {{- if $.Data.Term }}
+            {{- if eq (urlize $.Data.Term) (urlize .Name) }}{{ $is_this_tag = true }}{{ end }}
+          {{- end }}
+          <a href="{{ "/tags/" | relLangURL }}{{ .Name | urlize }}" class="tag-item {{ if $is_this_tag }}active{{ end }}">
+             {{ .Name }} <span style="font-size: 11px; opacity: 0.6; margin-left: 4px;">{{ .Count }}</span>
+          </a>
+        {{- end }}
+      </div>
+      <div class="expand-btn" id="expandBtn" onclick="toggleTags()">展开全部 ↓</div>
+    </div>
+
+    <script>
+      function toggleTags() {
+        const list = document.getElementById('tagList');
+        const btn = document.getElementById('expandBtn');
+        const isExpanded = list.classList.toggle('expanded');
+        btn.innerText = isExpanded ? '收起列表 ↑' : '展开全部 ↓';
+        list.style.overflowY = isExpanded ? 'visible' : 'auto';
+      }
+      window.onload = function() {
+        const list = document.getElementById('tagList');
+        const btn = document.getElementById('expandBtn');
+        const activeItem = list.querySelector('.active');
+        if (list.scrollHeight <= 88) {
+          btn.style.display = 'none';
+        } else if (activeItem && activeItem.offsetTop > 40) {
+          list.scrollTo({ top: activeItem.offsetTop - 10, behavior: 'smooth' });
+        }
+      };
+    </script>
+    {{- end }}
+  {{- end }}
+
+  {{/* --- 内容区 --- */}}
+  {{- if .Content }}
+  <div class="post-content">
+    {{- if not (.Param "disableAnchoredHeadings") }}
+      {{- partial "anchored_headings.html" .Content -}}
+    {{- else }}
+      {{ .Content }}
+    {{- end }}
+  </div>
+  {{- end }}
+
+  {{/* --- 文章列表 --- */}}
+  {{- $pages := union .RegularPages .Sections }}
+  {{- if .IsHome }}
+    {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
+    {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
+  {{- end }}
+  {{- $paginator := .Paginate $pages }}
+
+  {{- range $index, $page := $paginator.Pages }}
+  <article class="post-entry">
+    <header class="entry-header">
+      <h2 class="entry-hint-parent">{{- .Title }}</h2>
+    </header>
+    {{- if (ne (.Param "hideSummary") true) }}
+    <div class="entry-content">
+      <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+    </div>
+    {{- end }}
+    <footer class="entry-footer">{{- partial "post_meta.html" . -}}</footer>
+    <a class="entry-link" href="{{ .Permalink }}"></a>
+  </article>
+  {{- end }}
+
+  {{/* --- 分页 --- */}}
+  {{- if gt $paginator.TotalPages 1 }}
+  <footer class="page-footer">
+    <nav class="pagination">
+      {{- if $paginator.HasPrev }}<a class="prev" href="{{ $paginator.Prev.URL | absURL }}">« 上一页</a>{{- end }}
+      {{- if $paginator.HasNext }}<a class="next" href="{{ $paginator.Next.URL | absURL }}">下一页 »</a>{{- end }}
+    </nav>
+  </footer>
+  {{- end }}
+
+{{- end }}{{/* 结束 else (profileMode) */}}
+
+{{- end }}{{/* 结束 define "main" */}}

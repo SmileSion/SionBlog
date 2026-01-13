@@ -2,7 +2,7 @@
 date = '2026-01-07T06:00:00+08:00'
 draft = false
 title = '提问的智慧'
-tags = ["Blogs","How To Ask","Welcome"]
+tags = ["提问的智慧","Welcome"]
 +++
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/pulls)
