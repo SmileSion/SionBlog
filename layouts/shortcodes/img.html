@@ -1,28 +1,42 @@
 {{- $src := .Get "src" -}}
 {{- $alt := .Get "alt" | default "" -}}
+{{- $caption := .Get "caption" -}} {{/* 新增 caption 参数 */}}
 
 {{- $img := .Page.Resources.GetMatch $src -}}
-{{- if not $img -}}
-  {{ errorf "img shortcode: 找不到图片 %q" $src }}
+
+{{- if $img -}}
+  {{- $img600w := $img.Resize "600x webp q80" -}}
+  {{- $img1200w := $img.Resize "1200x webp q80" -}}
+  {{- $fallback := $img.Resize "1200x q85" -}}
+
+  <figure>
+    <picture>
+      <source
+        srcset="
+          {{ $img600w.RelPermalink }} 600w,
+          {{ $img1200w.RelPermalink }} 1200w
+        "
+        sizes="(max-width: 768px) 100vw, 1200px"
+        type="image/webp"
+      >
+      <img
+        src="{{ $fallback.RelPermalink }}"
+        alt="{{ $alt }}"
+        loading="lazy"
+        decoding="async"
+      >
+    </picture>
+    {{- if $caption -}}
+      <figcaption>{{ $caption }}</figcaption>
+    {{- end -}}
+  </figure>
+
+{{- else -}}
+  {{/* 如果是远程 URL，则回退到普通 img 标签，保证图片能显示 */}}
+  <figure>
+    <img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy">
+    {{- if $caption -}}
+      <figcaption>{{ $caption }}</figcaption>
+    {{- end -}}
+  </figure>
 {{- end -}}
-
-{{- $img600w := $img.Resize "600x webp q80" -}}
-{{- $img1200w := $img.Resize "1200x webp q80" -}}
-{{- $fallback := $img.Resize "1200x q85" -}}
-
-<picture>
-  <source
-    srcset="
-      {{ $img600w.RelPermalink }} 600w,
-      {{ $img1200w.RelPermalink }} 1200w
-    "
-    sizes="(max-width: 768px) 100vw, 1200px"
-    type="image/webp"
-  >
-  <img
-    src="{{ $fallback.RelPermalink }}"
-    alt="{{ $alt }}"
-    loading="lazy"
-    decoding="async"
-  >
-</picture>

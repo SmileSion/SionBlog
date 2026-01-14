@@ -1,27 +1,24 @@
-+++
-date = '2026-01-07T08:00:00+08:00'
-draft = false
-title = 'About Me'
-showtoc = false
-
-+++
-
-欢迎来到SmileSion的博客！
-
-这里记录了我的一些技术文章、摄影作品以及杂七杂八。
-
-希望通过这个博客分享有趣的内容。
-
+---
+title: "About Me"
+date: 2026-01-07
+showtoc : false
 ---
 
-## 技能 & 爱好
+## 欢迎来到SmileSion的博客！
 
-- Go / Python / C++ / JAVA /Web 开发
-- Linux / MacOS / 软路由
-- 摄影 / 旅行 / 吃 / 二次元 / 游戏
+我将在这里分享日常、摄影、技术相关内容
 
----
+欢迎你的到来～
+
+- 系统相关：Macos / Linux / 软路由
+- 开发相关：Golang / Python / C++ / Java / Web前端
+- 兴趣相关：摄影 / 游戏 / 旅行 / 好吃的饭 / 二次元
 
 ## 联系方式
+Email：1065716478@qq.com
 
-- 邮箱: 1065716478@qq.com  
+---
+
+## 探索导航
+{{< about/link_wall>}}
+

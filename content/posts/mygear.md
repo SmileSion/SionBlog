@@ -51,4 +51,4 @@ gadgets:
 
 近期部分电子设备及日均成本统计
 
-{{< gadget_list >}}
+{{< posts/mygear/gadget_list >}}

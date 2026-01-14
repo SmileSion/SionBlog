@@ -1,0 +1,6 @@
+{{- $.Scratch.Add "index" slice -}}
+{{/* 关键点：只循环 RegularPages，且排除掉 layout 为 search 的页面 */}}
+{{- range (where .Site.RegularPages "Layout" "!=" "search") -}}
+    {{- $.Scratch.Add "index" (dict "title" .Title "contents" .Plain "permalink" .Permalink "summary" .Summary "section" .Section) -}}
+{{- end -}}
+{{- $.Scratch.Get "index" | jsonify -}}

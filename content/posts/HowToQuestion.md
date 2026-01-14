@@ -2,6 +2,7 @@
 date = '2026-01-07T06:00:00+08:00'
 draft = false
 title = '提问的智慧'
+showtoc = true
 tags = ["提问的智慧","Welcome"]
 +++
 

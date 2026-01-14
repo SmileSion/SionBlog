@@ -9,7 +9,7 @@ enableRobotsTXT = true
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowCodeCopyButtons = true
-  ShowToc = true          # 显示文章目录
+  ShowToc = false         # 显示文章目录
 
 [params.cover]
   linkFullImages = false      # 点击图片是否查看原图

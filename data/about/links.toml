@@ -1,0 +1,29 @@
+# data/links.toml
+
+[[groups]]
+category = "实验室"
+  [[groups.items]]
+  title = "塔罗占卜"
+  desc = "探索星象与潜意识的对谈（实验中...）"
+  url = "/tarot/"
+  icon = ""
+
+  [[groups.items]]
+  title = "留言板"
+  desc = "留下你的足迹"
+  url = "/msg-board/"
+  icon = ""
+
+[[groups]]
+category = "社交 & 媒体"
+  [[groups.items]]
+  title = "摄影集"
+  desc = "被快门凝固的瞬间"
+  url = "/photos/"
+  icon = ""
+
+  [[groups.items]]
+  title = "GitHub"
+  desc = "开源项目与代码记录"
+  url = "https://github.com/smilesion"
+  icon = ""
