@@ -2,6 +2,7 @@
 date = '2026-01-14T16:11:18+08:00'
 draft = false
 title = 'Tmux和Screen的对比区别与使用教程'
+tags = ["Linux","Macos"] 
 +++
 
 # 终端复用神器对决：Tmux vs. Screen 全方位指南
