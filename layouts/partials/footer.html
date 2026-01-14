@@ -28,6 +28,7 @@
 </footer>
 {{- end }}
 
+{{/* --- 回到顶部按钮 --- */}}
 {{- if (not site.Params.disableScrollToTop) }}
 <a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
@@ -38,91 +39,10 @@
 
 {{- partial "extend_footer.html" . }}
 
-<script>
-    /* 极致紧凑版一言 */
-    (function() {
-        const textEl = document.getElementById('hitokoto-text');
-        const sepEl = document.getElementById('hitokoto-sep');
-        
-        function loadHitokoto() {
-            fetch('https://v1.hitokoto.cn')
-                .then(response => response.json())
-                .then(data => {
-                    if (textEl && sepEl) {
-                        let info = data.from_who ? ` —— ${data.from_who}` : ` —— 「${data.from}」`;
-                        textEl.innerText = `${data.hitokoto}${info}`;
-                        // 全文作为提示文字，鼠标悬停可见
-                        textEl.title = `${data.hitokoto}${info} (点击刷新)`;
-                        // 展示分隔符并淡入
-                        sepEl.style.display = 'inline';
-                        textEl.style.transition = 'opacity 0.5s';
-                        textEl.style.opacity = '0.7';
-                    }
-                });
-        }
-
-        loadHitokoto();
-        // 点击文字可以手动切换下一句，增加交互感
-        if (textEl) { textEl.addEventListener('click', loadHitokoto); }
-    })();
-
-    /* 以下保留原有功能逻辑（略作优化以节省空间） */
-    let menu = document.getElementById('menu');
-    if (menu) {
-        const scrollPosition = localStorage.getItem("menu-scroll-position");
-        if (scrollPosition) menu.scrollLeft = parseInt(scrollPosition, 10);
-        menu.onscroll = function () { localStorage.setItem("menu-scroll-position", menu.scrollLeft); }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? "auto" : "smooth"
-            });
-        });
-    });
-
-    var mybutton = document.getElementById("top-link");
-    {{- if (not site.Params.disableScrollToTop) }}
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible"; mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden"; mybutton.style.opacity = "0";
-        }
-    };
-    {{- end }}
-
-    {{- if (not site.Params.disableThemeToggle) }}
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        const isDark = document.querySelector("html").dataset.theme === "dark";
-        document.querySelector("html").dataset.theme = isDark ? 'light' : 'dark';
-        localStorage.setItem("pref-theme", isDark ? 'light' : 'dark');
-    })
-    {{- end }}
-
-    {{- if (and (eq .Kind "page") (ne .Layout "archives") (ne .Layout "search") (.Param "ShowCodeCopyButtons")) }}
-    document.querySelectorAll('pre > code').forEach((codeblock) => {
-        const container = codeblock.parentNode.parentNode;
-        const copybutton = document.createElement('button');
-        copybutton.classList.add('copy-code');
-        copybutton.innerHTML = '{{- i18n "code_copy" | default "copy" }}';
-        copybutton.addEventListener('click', () => {
-            navigator.clipboard.writeText(codeblock.textContent).then(() => {
-                copybutton.innerHTML = '{{- i18n "code_copied" | default "copied!" }}';
-                setTimeout(() => { copybutton.innerHTML = '{{- i18n "code_copy" | default "copy" }}'; }, 2000);
-            });
-        });
-        if (container.classList.contains("highlight")) container.appendChild(copybutton);
-    });
-    {{- end }}
-</script>
-
+{{/* --- 留言悬浮胶囊 --- */}}
 <a href="/msg-board/" class="floating-contact-globe" id="contactGlobe">
     <div class="globe-content">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
         </svg>
         <span class="globe-text">留言</span>
@@ -130,6 +50,12 @@
 </a>
 
 <style>
+/* 阻止主题切换时的布局抖动 */
+.theme-transitioning,
+.theme-transitioning * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
 /* 悬浮球核心样式 */
 .floating-contact-globe {
     position: fixed;
@@ -137,27 +63,23 @@
     right: 30px;
     z-index: 999;
     text-decoration: none !important;
-    
-    /* 关键修改：绑定 PaperMod 原生变量 */
     background: var(--entry); 
     border: 1px solid var(--border);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    
     padding: 10px 20px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* 细腻阴影适配黑白模式 */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    
+    /* 修复：禁止 transition: all，只针对特定属性过渡 */
+    transition: background 0.3s, border 0.3s, transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s;
 }
 
-/* 深色模式修正 */
 .dark .floating-contact-globe {
-    background: var(--tertiary) !important; /* 深色模式下用稍浅的灰色突出层级 */
+    background: var(--tertiary);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
@@ -165,7 +87,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--primary); /* 使用主题原生文字颜色 */
+    color: var(--primary);
 }
 
 .floating-contact-globe svg {
@@ -181,68 +103,137 @@
     white-space: nowrap;
 }
 
-/* 交互效果 */
 .floating-contact-globe:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     background: var(--secondary);
 }
 
-/* 滚动时的状态：更透明且向右微移，减少干扰 */
 .floating-contact-globe.scrolling {
     opacity: 0.3;
     transform: scale(0.9) translateX(15px);
-    filter: blur(0.5px);
 }
 
-/* 适配移动端：核心优化逻辑 */
+/* 回到顶部按钮适配 */
+.top-link {
+    bottom: 100px !important; 
+    z-index: 1000;
+    /* 修复：增加平滑过渡防止突变闪烁 */
+    transition: visibility 0.5s, opacity 0.5s, background 0.3s !important;
+}
+
+/* 移动端优化 */
 @media (max-width: 768px) {
     .floating-contact-globe {
         bottom: 25px;
         right: 15px;
-        padding: 12px; /* 变成正方形/圆形感 */
-        width: 44px;  /* 固定宽度 */
-        height: 44px; /* 固定高度 */
+        padding: 0;
+        width: 44px;
+        height: 44px;
         overflow: hidden;
     }
-    
-    /* 移动端隐藏文字，只留图标，防止遮挡文章 */
-    .globe-text {
-        display: none;
-    }
-    
-    .globe-content {
-        gap: 0;
-    }
-
-    .floating-contact-globe svg {
-        width: 22px;
-        height: 22px;
-    }
-    
-    /* 移动端滚动时几乎完全透明 */
+    .globe-text { display: none; }
+    .floating-contact-globe svg { width: 22px; height: 22px; }
     .floating-contact-globe.scrolling {
         opacity: 0.15;
         transform: scale(0.8) translateX(20px);
     }
-}
-/* 确保回到顶部按钮在留言球上方，不打架 */
-#top-link {
-    bottom: 100px !important; 
-    z-index: 1000;
+    .top-link { bottom: 80px !important; }
 }
 </style>
 
 <script>
+    /* 一言逻辑 */
+    (function() {
+        const textEl = document.getElementById('hitokoto-text');
+        const sepEl = document.getElementById('hitokoto-sep');
+        function loadHitokoto() {
+            fetch('https://v1.hitokoto.cn').then(res => res.json()).then(data => {
+                if (textEl && sepEl) {
+                    let info = data.from_who ? ` —— ${data.from_who}` : ` —— 「${data.from}」`;
+                    textEl.innerText = `${data.hitokoto}${info}`;
+                    sepEl.style.display = 'inline';
+                    textEl.style.opacity = '0.7';
+                }
+            });
+        }
+        loadHitokoto();
+        if (textEl) textEl.addEventListener('click', loadHitokoto);
+    })();
+
+    /* 滚动交互 */
     const globe = document.getElementById('contactGlobe');
     let scrollTimeout;
-
     window.addEventListener('scroll', function() {
-        globe.classList.add('scrolling');
-        
+        if(globe) globe.classList.add('scrolling');
         clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function() {
-            globe.classList.remove('scrolling');
-        }, 200); // 稍微延长恢复时间，增加丝滑感
+        scrollTimeout = setTimeout(() => {
+            if(globe) globe.classList.remove('scrolling');
+        }, 200);
+    });
+
+    /* 主题切换核心修复：适配全平台加载与即时切换 */
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const h = document.querySelector("html");
+        const b = document.body;
+        
+        // 添加过渡 class 防止瞬间颜色跳变
+        h.classList.add('theme-transitioning');
+        
+        if (h.dataset.theme === 'dark' || b.classList.contains('dark')) {
+            h.dataset.theme = 'light';
+            b.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            h.dataset.theme = 'dark';
+            b.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+        
+        setTimeout(() => h.classList.remove('theme-transitioning'), 300);
+    });
+
+    /* 原生功能：回到顶部 */
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible"; 
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden"; 
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    /* 原生功能：平滑锚点跳转 */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (id === "top") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                return;
+            }
+            const target = document.querySelector(`[id='${decodeURIComponent(id)}']`);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? "auto" : "smooth"
+                });
+            }
+        });
+    });
+
+    /* 原生功能：代码复制 */
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+        copybutton.addEventListener('click', () => {
+            navigator.clipboard.writeText(codeblock.textContent).then(() => {
+                copybutton.innerHTML = 'copied!';
+                setTimeout(() => { copybutton.innerHTML = 'copy'; }, 2000);
+            });
+        });
+        if (container.classList.contains("highlight")) container.appendChild(copybutton);
     });
 </script>
