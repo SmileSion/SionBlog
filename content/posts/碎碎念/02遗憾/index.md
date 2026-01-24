@@ -5,7 +5,7 @@ draft = false
 tags = ["碎碎念"]
 +++
 
-{{< posts/thought title="见过花开就好了" mood="dusk" meta="碎碎念 / 01" >}}
+{{< posts/thought title="见过花开就好了" mood="dusk" meta="碎碎念 / 02" >}}
 
 又何必在意花属于谁？
 
