@@ -3,6 +3,7 @@ date = '2026-03-23T09:56:35+08:00'
 draft = false
 title = 'Redis缓存穿透问题'
 showToc = true
+tags = ["Redis"] 
 +++
 
 > Redis「缓存穿透」是一个很经典的问题，本质是：请求的数据在缓存和数据库里都不存在，导致每次请求都会直接打到数据库。
